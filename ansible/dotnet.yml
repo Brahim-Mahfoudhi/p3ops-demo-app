@@ -1,0 +1,102 @@
+- hosts: all
+  vars:
+    dotnet_runtime: dotnet
+    dotnet_channel: 6.0
+    dotnet_script_path: /tmp
+    dotnet_installation_path: /home/jashu-local-001
+    dotnet_dependencies:
+      - libc6
+      - libgcc1
+      - libgssapi-krb5-2
+      - libicu70  
+      - libssl3
+      - libstdc++6
+      - zlib1g
+
+  tasks:
+    - name: Ensure HTTPS support by apt
+      apt:
+        name: apt-transport-https
+        state: latest
+        update_cache: yes
+      become: yes
+
+    - name: Install dotnet dependencies
+      apt:
+        name: "{{ item }}"
+        state: latest
+        update_cache: yes
+      with_items: "{{ dotnet_dependencies }}"
+      become: yes
+
+    - name: Download MS dotnet-install script
+      get_url:
+        url: https://dot.net/v1/dotnet-install.sh
+        dest: "{{ dotnet_script_path }}/dotnet-install.sh"
+        force: true
+
+    - name: Make dotnet-install script executable
+      ansible.builtin.file:
+        path: "{{ dotnet_script_path }}/dotnet-install.sh"
+        mode: '0755'
+        state: file
+      become: yes
+
+    - name: Check if dotnet is already installed
+      command: dotnet --version
+      register: dotnet_installed
+      ignore_errors: yes
+
+    - name: Install dotnet if not installed
+      ansible.builtin.shell:
+        cmd: "{{ dotnet_script_path }}/dotnet-install.sh --channel {{ dotnet_channel }} --runtime {{ dotnet_runtime }}"
+        chdir: "{{ dotnet_installation_path }}"
+      when: dotnet_installed.rc != 0
+
+    - name: Cleanup dotnet-install files
+      ansible.builtin.file:
+        path: "{{ dotnet_script_path }}/dotnet-install.sh"
+        state: absent
+
+# Run .NET application
+- name: Run in production
+  hosts: dockerlab
+  become: yes
+  vars:
+    sa_password: "Drgnnrblnc19"
+    database_name: "SportStore"
+  tasks:
+    - name: Restore the packages
+      command: dotnet restore src/Server/Server.csproj
+      args:
+        chdir: /vagrant/app
+
+    - name: Build the server
+      command: dotnet build src/Server/Server.csproj
+      args:
+        chdir: /vagrant/app
+
+    - name: Publish server
+      command: dotnet publish src/Server/Server.csproj -c Release -o publish
+      args:
+        chdir: /vagrant/app
+
+    - name: Set DOTNET_ENVIRONMENT variable
+      lineinfile:
+        path: /etc/environment
+        line: 'DOTNET_ENVIRONMENT=Production'
+        state: present
+
+    - name: Set DOTNET_ConnectionStrings__SqlDatabase variable
+      lineinfile:
+        path: /etc/environment
+        line: 'DOTNET_ConnectionStrings__SqlDatabase="Server=localhost,1433;Database={{ database_name }};User Id=sa;Password={{ sa_password }};"'
+        state: present
+
+    - name: Run application
+      command: dotnet publish/Server.dll
+      args:
+        chdir: /vagrant/app
+      environment:
+        DOTNET_ENVIRONMENT: "Production"
+        DOTNET_ConnectionStrings__SqlDatabase: "Server=localhost,1433;Database={{ database_name }};User Id=sa;Password={{ sa_password }};"

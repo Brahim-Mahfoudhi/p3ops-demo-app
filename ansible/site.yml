@@ -1,0 +1,307 @@
+---
+# Creates the known_hosts file on the control node and makes it idempotent
+- name: Create known_hosts on localhost
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  vars:
+    ssh_path: "~/.ssh"
+    known_hosts: "~/.ssh/known_hosts"
+  tasks:
+    - name: Create SSH directory if it doesn't exist
+      file:
+        path: "{{ ssh_path }}"
+        state: directory
+
+    - name: ansible stat to verify known_hosts exists
+      ansible.builtin.stat:
+        path: "{{known_hosts}}"
+      register: ansible_stat_known_hosts
+
+    - name: Create known_hosts file if it does not exists
+      file:
+        path: "{{ known_hosts }}"
+        state: touch
+      when: not ansible_stat_known_hosts.stat.exists
+
+- name: install community.crypto
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Check if community.crypto collection is installed
+      ansible.builtin.stat:
+        path: "/home/vagrant/.local/lib/python3.9/site-packages/ansible_collections/community"
+      register: crypto_collection_installed
+
+    - name: Install community.cr collection
+      command: ansible-galaxy collection install community.crypto
+      when: not crypto_collection_installed.stat.exists
+
+#------------------------------------------------------------------------------------------------
+# Retrieves the ssh fingerprint of all managed nodes and makes it idempotent
+- name: Get the SSH fingerprint from the managed nodes
+  hosts: all
+  become: yes
+  gather_facts: no
+  connection: local
+  vars:
+    known_hosts: "/home/vagrant/.ssh/known_hosts"
+  tasks:
+    # Idempotency
+    - name: ansible stat to verify known_hosts exists
+      ansible.builtin.stat:
+        path: "{{known_hosts}}"
+      register: ansible_stat_known_hosts
+    # Scans and registers the key using ssh-keyscan
+    - name: Scan and register
+      command: "ssh-keyscan {{ ansible_host }}"
+      register: host_keys
+      become: yes
+    # Adds the keys to the known_hosts
+    - name: Add SSH keys to known_hosts
+      lineinfile:
+        path: "{{ known_hosts }}"
+        line: "{{ item }}"
+      with_items: "{{ host_keys.stdout_lines }}"
+      become: yes
+
+# Creates the User account on all managed nodes but the r001
+- name: Create User Account
+  hosts: all
+  become: yes
+  vars_files:
+    - ansible/group_vars/all.yml
+  tasks:
+    # Creates the user and makes it idempotent using the present state
+    - name: Create user Brahim and add to wheel group
+      ansible.builtin.user:
+        name: Brahim
+        comment: "Ansible user Brahim"
+        password: "$2y$10$aRZ666fL/7M85NyvB9yW3e4HUfxFCcLeLxamydcyFwF8.kDaCJVxa" # hashed password
+        ssh_key_passphrase: "{{ssh_key_passphrase}}"
+        groups: sudo
+        system: false
+        state: present
+
+# Copies the SSH public key to all managed host but the r001
+- name: Copy SSH public key to the authorized_keys
+  hosts: all
+  become: yes
+  vars:
+    ssh_path: "~/.ssh"
+  vars_files:
+    - ansible/group_vars/all.yml
+  tasks:
+    # Creates the SSH directory
+    - name: Create SSH directory if it doesn't exist
+      file:
+        path: "{{ ssh_path }}"
+        state: directory
+    # Copies the SSH public key to the authorized_key:
+    - name: Copy SSH public key to authorized_keys
+      authorized_key:
+        user: Brahim
+        key: "{{ssh_key_passphrase}}"
+        state: present
+      when: inventory_hostname not in ['r001']
+
+
+- name: Clean install of .NET SDK 6.0
+  hosts: dockerlab
+  become: yes
+  tasks:
+
+    # Step 1: Remove all existing dotnet, aspnetcore, and netstandard packages
+    - name: Remove all existing .NET, ASP.NET Core, and netstandard packages
+      apt:
+        name: "dotnet*, aspnetcore*, netstandard*"
+        state: absent
+
+    # Step 2: Create preferences file to demote Ubuntu's .NET packages
+    - name: Create preferences file for Microsoft packages
+      copy:
+        dest: /etc/apt/preferences.d/99microsoft-dotnet.pref
+        content: |
+          Package: dotnet* aspnet* netstandard*
+          Pin: origin "archive.ubuntu.com"
+          Pin-Priority: -10
+
+          Package: dotnet* aspnet* netstandard*
+          Pin: origin "security.ubuntu.com"
+          Pin-Priority: -10
+        mode: '0644'
+
+    # Step 3: Update the apt cache
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    # Step 4: Install the .NET SDK 8.0
+- name: Install .NET SDK 6.0
+  hosts: dockerlab  # Change this to your target hosts
+  become: yes       # Use sudo
+  tasks:
+  - name: Download MS product repository
+    get_url:
+      url: https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
+      dest: /tmp/packages-microsoft-prod.deb
+
+  - name: Install MS product repository
+    apt:
+      deb: /tmp/packages-microsoft-prod.deb
+
+  - name: Make sure HTTPS is supported by apt
+    apt:
+      name: apt-transport-https
+      state: present
+      update_cache: yes
+
+  - name: Update APT package index
+    apt:
+      update_cache: yes
+
+  - name: Install dependencies
+    apt:
+      name: 
+        - dotnet-sdk-6.0
+        - libssl3  
+        - libicu70  
+      state: present
+
+  - name: Remove the MS product repository package
+    file:
+      path: /tmp/packages-microsoft-prod.deb
+      state: absent
+
+  - name: Verify .NET installation
+    command: dotnet --info
+    register: dotnet_info
+    failed_when: dotnet_info.rc != 0
+
+  - name: Print .NET info
+    debug:
+      var: dotnet_info.stdout
+
+
+# Install Git
+- name: Install Git
+  hosts: dockerlab
+  become: true
+  tasks:
+    - name: Install Git
+      apt:
+        name: git
+        state: present
+    
+    - name: Ensure /vagrant/app exists with correct ownership
+      file:
+        path: /vagrant/app
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: '0755'
+
+    - name: Clone p3ops-demo-app repository
+      git:
+        repo: https://github.com/HoGentTIN/p3ops-demo-app.git
+        dest: /vagrant/app
+        update: yes
+        force: yes
+      become: yes
+
+# Install SQL Server using Docker
+- name: Install SQL Server using Docker and configure .NET connection string
+  hosts: all
+  become: yes
+  vars:
+    sa_password: "Drgnnrblnc19"
+    sql_server_image: "mcr.microsoft.com/mssql/server:2022-latest"
+    sql_container_name: "sqlserver"
+    database_name: "SportStore"
+    connection_string_file: "/vagrant/app/src/Server/appsettings.Development.json"
+
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker is running
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Pull SQL Server Docker image
+      docker_image:
+        name: "{{ sql_server_image }}"
+        source: pull
+
+    - name: Run SQL Server container
+      docker_container:
+        name: "{{ sql_container_name }}"
+        image: "{{ sql_server_image }}"
+        state: started
+        restart_policy: always
+        ports:
+          - "1433:1433"
+        env:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: "{{ sa_password }}"
+
+    - name: Wait for SQL Server to initialize
+      wait_for:
+        host: localhost
+        port: 1433
+        delay: 30
+        state: started
+
+    - name: Update .NET connection string
+      lineinfile:
+        path: "{{ connection_string_file }}"
+        regexp: '"SqlDatabase": ".*"'
+        line: '"SqlDatabase": "Server=localhost,1433;Database={{ database_name }};User Id=sa;Password={{ sa_password }};Trusted_Connection=False;MultipleActiveResultSets=True;"'
+
+# Run .NET application
+- name: Run in production
+  hosts: dockerlab
+  become: yes
+  vars:
+    sa_password: "Drgnnrblnc19"
+    database_name: "SportStore"
+  tasks:
+    - name: Restore the packages
+      command: dotnet restore src/Server/Server.csproj
+      args:
+        chdir: /vagrant/app
+
+    - name: Build the server
+      command: dotnet build src/Server/Server.csproj
+      args:
+        chdir: /vagrant/app
+
+    - name: Publish server
+      command: dotnet publish src/Server/Server.csproj -c Release -o publish
+      args:
+        chdir: /vagrant/app
+
+    - name: Set DOTNET_ENVIRONMENT variable
+      lineinfile:
+        path: /etc/environment
+        line: 'DOTNET_ENVIRONMENT=Production'
+        state: present
+
+    - name: Set DOTNET_ConnectionStrings__SqlDatabase variable
+      lineinfile:
+        path: /etc/environment
+        line: 'DOTNET_ConnectionStrings__SqlDatabase="Server=localhost,1433;Database={{ database_name }};User Id=sa;Password={{ sa_password }};"'
+        state: present
+
+    - name: Run application
+      command: dotnet publish/Server.dll
+      args:
+        chdir: /vagrant/app
+      environment:
+        DOTNET_ENVIRONMENT: "Production"
+        DOTNET_ConnectionStrings__SqlDatabase: "Server=localhost,1433;Database={{ database_name }};User Id=sa;Password={{ sa_password }};"
