@@ -6,11 +6,11 @@
 ---
 
 - name: dockerlab
-  ip: 172.16.128.1
+  ip: 172.16.128.101
   netmask: 255.255.0.0
   box: bento/ubuntu-22.04
 
 - name: control
   ip: 172.16.128.253
   netmask: 255.255.0.0
-  box: bento/ubuntu-22.04
+  box: bento/almalinux-9

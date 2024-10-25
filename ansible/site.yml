@@ -67,10 +67,10 @@
 
 # Creates the User account on all managed nodes but the r001
 - name: Create User Account
-  hosts: all
+  hosts: dockerlab
   become: yes
   vars_files:
-    - ansible/group_vars/all.yml
+    - /vagrant/ansible/group_vars/all.yml
   tasks:
     # Creates the user and makes it idempotent using the present state
     - name: Create user Brahim and add to wheel group
@@ -85,12 +85,12 @@
 
 # Copies the SSH public key to all managed host but the r001
 - name: Copy SSH public key to the authorized_keys
-  hosts: all
+  hosts: dockerlab
   become: yes
   vars:
     ssh_path: "~/.ssh"
   vars_files:
-    - ansible/group_vars/all.yml
+    - /vagrant/ansible/group_vars/all.yml
   tasks:
     # Creates the SSH directory
     - name: Create SSH directory if it doesn't exist
@@ -211,7 +211,7 @@
 
 # Install SQL Server using Docker
 - name: Install SQL Server using Docker and configure .NET connection string
-  hosts: all
+  hosts: dockerlab
   become: yes
   vars:
     sa_password: "Drgnnrblnc19"

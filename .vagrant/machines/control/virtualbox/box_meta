@@ -1,1 +1,1 @@
-{"name":"bento/ubuntu-22.04","version":"202309.08.0","provider":"virtualbox","directory":"boxes/bento-VAGRANTSLASH-ubuntu-22.04/202309.08.0/virtualbox"}
+{"name":"bento/almalinux-9","version":"202407.22.0","provider":"virtualbox","directory":"boxes/bento-VAGRANTSLASH-almalinux-9/202407.22.0/virtualbox"}

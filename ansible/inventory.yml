@@ -6,7 +6,7 @@ servers:
     ansible_become: true
   hosts:
     dockerlab:
-      ansible_host: 172.16.128.1
+      ansible_host: 172.16.128.101
 
 
 
