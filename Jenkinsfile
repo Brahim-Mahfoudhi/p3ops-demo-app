@@ -5,7 +5,7 @@ pipeline {
         DOTNET_PROJECT_PATH = 'p3ops-demo-app/src/Server/Server.csproj'
         PUBLISH_OUTPUT = 'publish'
         DOTNET_ENVIRONMENT = 'Production'
-        DOTNET_ConnectionStrings__SqlDatabase = '"SqlDatabase": "Server=localhost,1433;Database={{ database_name }};User Id=sa;Password={{ sa_password }};Trusted_Connection=False;MultipleActiveResultSets=True;"' // Replace with actual connection string
+        DOTNET_ConnectionStrings__SqlDatabase = '"SqlDatabase": "Server=localhost,1433;Database={{ database_name }};User Id=sa;Password={{ sa_password }};Trusted_Connection=False;MultipleActiveResultSets=True;"'
     }
 
     stages {
