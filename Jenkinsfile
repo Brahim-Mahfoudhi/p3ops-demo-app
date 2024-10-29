@@ -37,9 +37,6 @@ pipeline {
         }
 
         stage('Deployment to Remote Server') {
-            when {
-                expression { return params.DEPLOY_TO_TEST } // Manual trigger for CI mode
-            }
             steps {
                 script {
                     // Copy the published files to the remote server and run the application
