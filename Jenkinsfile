@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        DOTNET_PROJECT_PATH = 'src/Server/Server.csproj' // Path to the .NET server project
-        PUBLISH_OUTPUT = 'publish' // Publish output directory
-        DOTNET_ENVIRONMENT = 'Production' // Replace with your desired environment name
-        DOTNET_ConnectionStrings__SqlDatabase = 'your-sql-server-connection-string' // Replace with actual connection string
+        DOTNET_PROJECT_PATH = 'src/Server/Server.csproj'
+        PUBLISH_OUTPUT = 'publish'
+        DOTNET_ENVIRONMENT = 'Production'
+        DOTNET_ConnectionStrings__SqlDatabase = '"SqlDatabase": "Server=localhost,1433;Database={{ database_name }};User Id=sa;Password={{ sa_password }};Trusted_Connection=False;MultipleActiveResultSets=True;"' // Replace with actual connection string
     }
 
     stages {
