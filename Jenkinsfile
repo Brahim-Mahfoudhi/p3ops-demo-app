@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent app
 
     environment {
         DOTNET_PROJECT_PATH = 'src/Server/Server.csproj'
