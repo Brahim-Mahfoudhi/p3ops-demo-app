@@ -62,7 +62,7 @@ pipeline {
                 link: env.BUILD_URL,
                 result: 'SUCCESS',
                 title: "${env.JOB_NAME} - Build Success",
-                webhookURL: "https://discord.com/api/webhooks/your-webhook-url"
+                webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
             )
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
         }
@@ -81,9 +81,8 @@ pipeline {
                 link: env.BUILD_URL,
                 result: 'FAILURE',
                 title: "${env.JOB_NAME} - Build Failed",
-                webhookURL: "https://discord.com/api/webhooks/your-webhook-url"
+                webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
             )
         }
-
     }
 }
