@@ -62,6 +62,7 @@ pipeline {
     post {
         success {
             echo 'Build and deployment completed successfully!'
+            def buildReportUrl = "${JENKINS_URL}job/${env.JOB_NAME}/${env.BUILD_NUMBER}/"
             discordSend(
                 description: """
                 Build #${env.BUILD_NUMBER} completed successfully!
@@ -71,10 +72,10 @@ pipeline {
                 **Branch**: ${env.GIT_BRANCH}
                 **Message**: ${env.GIT_COMMIT_MESSAGE}
                 
-                [**Report**](${env.BUILD_URL}) - Detailed build report
+                [**Report**](${buildReportUrl}) - Detailed build report
                 """,
                 footer: "Build Duration: ${currentBuild.durationString.replace(' and counting', '')}",
-                link: env.BUILD_URL,
+                link: buildReportUrl,
                 result: 'SUCCESS',
                 title: "${env.JOB_NAME} - Build Success",
                 webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
@@ -84,6 +85,7 @@ pipeline {
 
         failure {
             echo 'Build or deployment has failed.'
+            def buildReportUrl = "${JENKINS_URL}job/${env.JOB_NAME}/${env.BUILD_NUMBER}/"
             discordSend(
                 description: """
                 Build #${env.BUILD_NUMBER} has failed!
@@ -93,10 +95,10 @@ pipeline {
                 **Branch**: ${env.GIT_BRANCH}
                 **Message**: ${env.GIT_COMMIT_MESSAGE}
                 
-                [**Report**](${env.BUILD_URL}) - Detailed build report
+                [**Report**](${buildReportUrl}) - Detailed build report
                 """,
                 footer: "Build Duration: ${currentBuild.durationString.replace(' and counting', '')}",
-                link: env.BUILD_URL,
+                link: buildReportUrl,
                 result: 'FAILURE',
                 title: "${env.JOB_NAME} - Build Failed",
                 webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
