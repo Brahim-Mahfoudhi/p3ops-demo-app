@@ -6,7 +6,6 @@ pipeline {
         PUBLISH_OUTPUT = 'publish'
         DOTNET_ENVIRONMENT = 'Production'
         DOTNET_ConnectionStrings__SqlDatabase = "Server=localhost,1433;Database=SportStore;User Id=sa;Password=Drgnnrblnc19;Trusted_Connection=False;MultipleActiveResultSets=True;"
-        DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
     }
 
     stages {
@@ -49,40 +48,33 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            archiveArtifacts artifacts: '**/*.dll', fingerprint: true
-            echo 'Build process completed.'
-            discordSend(
-                description: "Jenkins Pipeline Build",
-                footer: "Footer Text",
-                link: env.BUILD_URL,
-                result: currentBuild.currentResult,
-                title: env.JOB_NAME,
-                webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
-            )
-        }
-        success {
-            echo 'Build and deployment successful!'
-            discordSend(
-                description: "Jenkins Pipeline Build",
-                footer: "Footer Text",
-                link: env.BUILD_URL,
-                result: 'SUCCESS',
-                title: "${env.JOB_NAME} - Build Successful",
-                webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
-            )
-        }
-        failure {
-            echo 'Build or deployment failed.'
-            discordSend(
-                description: "Jenkins Pipeline Build",
-                footer: "Footer Text",
-                link: env.BUILD_URL,
-                result: 'FAILURE',
-                title: "${env.JOB_NAME} - Build Failed",
-                webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
-            )
-        }
+    success {
+        echo 'Build and deployment completed successfully!'
+        discordSend(
+            description: "Jenkins Pipeline Build Successful",
+            footer: "Congratulations on a successful build!",
+            link: env.BUILD_URL,
+            result: 'SUCCESS',
+            title: "${env.JOB_NAME} - Build Successful",
+            webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
+        )
     }
+    
+    failure {
+        echo 'Build or deployment has failed.'
+        discordSend(
+            description: "Jenkins Pipeline Build Failed",
+            footer: "Please check the logs for details.",
+            link: env.BUILD_URL,
+            result: 'FAILURE',
+            title: "${env.JOB_NAME} - Build Failed",
+            webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
+        )
+    }
+    
+    always {
+        archiveArtifacts artifacts: '**/*.dll', fingerprint: true
+        echo 'Build process has completed.' // This will execute regardless of the build outcome
+    }
+
 }
