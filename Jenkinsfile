@@ -22,23 +22,10 @@ pipeline {
             }
         }
 
-        stage('Linting and Static Code Analysis') {
-            steps {
-                // Uncomment if linting is required
-                // sh "dotnet format ${DOTNET_PROJECT_PATH} --check"
-            }
-        }
 
         stage('Build Application') {
             steps {
                 sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release"
-            }
-        }
-
-        stage('Run Unit Tests') {
-            steps {
-                // Uncomment if tests are required
-                // sh "dotnet test ${DOTNET_PROJECT_PATH} --logger trx;logfilename=TestResults.trx"
             }
         }
 
