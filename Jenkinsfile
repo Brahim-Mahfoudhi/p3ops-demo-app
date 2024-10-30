@@ -18,107 +18,84 @@ pipeline {
 
         stage('Restore Dependencies') {
             steps {
-                script {
-                    sh "dotnet restore ${DOTNET_PROJECT_PATH}"
-                }
+                sh "dotnet restore ${DOTNET_PROJECT_PATH}"
             }
         }
 
         stage('Linting and Static Code Analysis') {
             steps {
-                script {
-                    // sh "dotnet format ${DOTNET_PROJECT_PATH} --check"
-                }
+                // Uncomment if linting is required
+                // sh "dotnet format ${DOTNET_PROJECT_PATH} --check"
             }
         }
 
         stage('Build Application') {
             steps {
-                script {
-                    sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release"
-                }
+                sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release"
             }
         }
 
         stage('Run Unit Tests') {
             steps {
-                script {
-                    // sh "dotnet test ${DOTNET_PROJECT_PATH} --logger trx;logfilename=TestResults.trx"
-                }
+                // Uncomment if tests are required
+                // sh "dotnet test ${DOTNET_PROJECT_PATH} --logger trx;logfilename=TestResults.trx"
             }
         }
 
         stage('Publish Application') {
             steps {
-                script {
-                    sh "dotnet publish ${DOTNET_PROJECT_PATH} -c Release -o ${PUBLISH_OUTPUT}"
-                }
+                sh "dotnet publish ${DOTNET_PROJECT_PATH} -c Release -o ${PUBLISH_OUTPUT}"
             }
         }
 
         stage('Deployment to Remote Server') {
             steps {
-                script {
-                    sh '''
-                        scp -i ~/.ssh/id_rsa -r ${PUBLISH_OUTPUT}/* vagrant@172.16.128.101:/vagrant/output-pipeline || exit 1
-                        ssh -i ~/.ssh/id_rsa vagrant@172.16.128.101 "
-                            export DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT} \
-                                   DOTNET_ConnectionStrings__SqlDatabase='${DOTNET_ConnectionStrings__SqlDatabase}' && \
-                            nohup dotnet /vagrant/output-pipeline/Server.dll > app.log 2>&1 &
-                        " || exit 1
-                    '''
-                }
+                sh '''
+                    scp -i ~/.ssh/id_rsa -r ${PUBLISH_OUTPUT}/* vagrant@172.16.128.101:/vagrant/output-pipeline || exit 1
+                    ssh -i ~/.ssh/id_rsa vagrant@172.16.128.101 "
+                        export DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT} \
+                               DOTNET_ConnectionStrings__SqlDatabase='${DOTNET_ConnectionStrings__SqlDatabase}' && \
+                        nohup dotnet /vagrant/output-pipeline/Server.dll > app.log 2>&1 &
+                    " || exit 1
+                '''
             }
         }
     }
 
     post {
         always {
-            script {
-                archiveArtifacts artifacts: '**/*.dll', fingerprint: true
-                // junit '**/TestResults/*.xml'
-                echo 'Build process completed.'
-                
-                // Send Discord notification
-                discordSend(
-                    description: "Jenkins Pipeline Build",
-                    footer: "Footer Text",
-                    link: env.BUILD_URL,
-                    result: currentBuild.currentResult,
-                    title: env.JOB_NAME,
-                    webhookURL: "${DISCORD_WEBHOOK}"
-                )
-            }
+            archiveArtifacts artifacts: '**/*.dll', fingerprint: true
+            echo 'Build process completed.'
+            discordSend(
+                description: "Jenkins Pipeline Build",
+                footer: "Footer Text",
+                link: env.BUILD_URL,
+                result: currentBuild.currentResult,
+                title: env.JOB_NAME,
+                webhookURL: "${DISCORD_WEBHOOK}"
+            )
         }
         success {
-            script {
-                echo 'Build and deployment successful!'
-                
-                // Send success notification to Discord
-                discordSend(
-                    description: "Jenkins Pipeline Build",
-                    footer: "Footer Text",
-                    link: env.BUILD_URL,
-                    result: 'SUCCESS',
-                    title: "${env.JOB_NAME} - Build Successful",
-                    webhookURL: "${DISCORD_WEBHOOK}"
-                )
-            }
+            echo 'Build and deployment successful!'
+            discordSend(
+                description: "Jenkins Pipeline Build",
+                footer: "Footer Text",
+                link: env.BUILD_URL,
+                result: 'SUCCESS',
+                title: "${env.JOB_NAME} - Build Successful",
+                webhookURL: "${DISCORD_WEBHOOK}"
+            )
         }
         failure {
-            script {
-                echo 'Build or deployment failed.'
-                
-                // Send failure notification to Discord
-                discordSend(
-                    description: "Jenkins Pipeline Build",
-                    footer: "Footer Text",
-                    link: env.BUILD_URL,
-                    result: 'FAILURE',
-                    title: "${env.JOB_NAME} - Build Failed",
-                    webhookURL: "${DISCORD_WEBHOOK}"
-                )
-            }
+            echo 'Build or deployment failed.'
+            discordSend(
+                description: "Jenkins Pipeline Build",
+                footer: "Footer Text",
+                link: env.BUILD_URL,
+                result: 'FAILURE',
+                title: "${env.JOB_NAME} - Build Failed",
+                webhookURL: "${DISCORD_WEBHOOK}"
+            )
         }
     }
 }
