@@ -98,6 +98,7 @@ def sendDiscordNotification(status) {
                 **Author**: ${env.GIT_AUTHOR_NAME} <${env.GIT_AUTHOR_EMAIL}>
                 **Branch**: ${env.GIT_BRANCH}
                 **Message**: ${env.GIT_COMMIT_MESSAGE}
+                
                 [**Report**](http://172.16.128.100:8080/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/) - Detailed build report
             """,
             footer: "Build Duration: ${currentBuild.durationString.replace(' and counting', '')}",
