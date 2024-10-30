@@ -51,17 +51,18 @@ pipeline {
         success {
             echo 'Build and deployment completed successfully!'
             discordSend(
-                description: "Build #${env.BUILD_NUMBER} completed successfully!",
+                description: """
+                Build #${env.BUILD_NUMBER} completed successfully!
+                
+                **Commit**: ${env.GIT_COMMIT}
+                **Author**: ${env.GIT_AUTHOR_NAME} <${env.GIT_AUTHOR_EMAIL}>
+                **Branch**: ${env.GIT_BRANCH}
+                """,
                 footer: "Build Duration: ${currentBuild.durationString.replace(' and counting', '')}",
                 link: env.BUILD_URL,
                 result: 'SUCCESS',
                 title: "${env.JOB_NAME} - Build Success",
-                webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I",
-                fields: [
-                    [name: "Commit", value: "${env.GIT_COMMIT}", inline: true],
-                    [name: "Author", value: "${env.GIT_AUTHOR_NAME} <${env.GIT_AUTHOR_EMAIL}>", inline: true],
-                    [name: "Branch", value: "${env.GIT_BRANCH}", inline: true]
-                ]
+                webhookURL: "https://discord.com/api/webhooks/your-webhook-url"
             )
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
         }
@@ -69,18 +70,20 @@ pipeline {
         failure {
             echo 'Build or deployment has failed.'
             discordSend(
-                description: "Build #${env.BUILD_NUMBER} has failed!",
+                description: """
+                Build #${env.BUILD_NUMBER} has failed!
+                
+                **Commit**: ${env.GIT_COMMIT}
+                **Author**: ${env.GIT_AUTHOR_NAME} <${env.GIT_AUTHOR_EMAIL}>
+                **Branch**: ${env.GIT_BRANCH}
+                """,
                 footer: "Build Duration: ${currentBuild.durationString.replace(' and counting', '')}",
                 link: env.BUILD_URL,
                 result: 'FAILURE',
                 title: "${env.JOB_NAME} - Build Failed",
-                webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I",
-                fields: [
-                    [name: "Commit", value: "${env.GIT_COMMIT}", inline: true],
-                    [name: "Author", value: "${env.GIT_AUTHOR_NAME} <${env.GIT_AUTHOR_EMAIL}>", inline: true],
-                    [name: "Branch", value: "${env.GIT_BRANCH}", inline: true]
-                ]
+                webhookURL: "https://discord.com/api/webhooks/your-webhook-url"
             )
         }
+
     }
 }
