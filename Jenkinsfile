@@ -9,6 +9,18 @@ pipeline {
     }
 
     stages {
+        stage('Initialize Variables') {
+            steps {
+                script {
+                    env.GIT_COMMIT = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
+                    env.GIT_AUTHOR_NAME = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
+                    env.GIT_AUTHOR_EMAIL = sh(script: "git log -1 --pretty=format:'%ae'", returnStdout: true).trim()
+                    env.GIT_COMMIT_MESSAGE = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
+                    env.GIT_BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+                }
+            }
+        }
+
         stage('Clean workspace') {
             steps {
                 cleanWs()
@@ -53,7 +65,7 @@ pipeline {
             discordSend(
                 description: """
                 Build #${env.BUILD_NUMBER} completed successfully!
-        
+
                 **Commit**: ${env.GIT_COMMIT}
                 **Author**: ${env.GIT_AUTHOR_NAME} <${env.GIT_AUTHOR_EMAIL}>
                 **Branch**: ${env.GIT_BRANCH}
@@ -69,13 +81,13 @@ pipeline {
             )
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
         }
-        
+
         failure {
             echo 'Build or deployment has failed.'
             discordSend(
                 description: """
                 Build #${env.BUILD_NUMBER} has failed!
-        
+
                 **Commit**: ${env.GIT_COMMIT}
                 **Author**: ${env.GIT_AUTHOR_NAME} <${env.GIT_AUTHOR_EMAIL}>
                 **Branch**: ${env.GIT_BRANCH}
@@ -90,6 +102,9 @@ pipeline {
                 webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
             )
         }
-
+        
+        always {
+            echo 'Build process has completed.'
+        }
     }
 }
