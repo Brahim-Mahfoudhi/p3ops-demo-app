@@ -5,23 +5,11 @@ pipeline {
         DOTNET_PROJECT_PATH = 'p3ops-demo-app/src/Server/Server.csproj'
         PUBLISH_OUTPUT = 'publish'
         DOTNET_ENVIRONMENT = 'Production'
-        DOTNET_ConnectionStrings__SqlDatabase = "Server=localhost,1433;Database=SportStore;User Id=sa;Password=Drgnnrblnc19;Trusted_Connection=False;MultipleActiveResultSets=True;"
+        DOTNET_CONNECTION_STRING = "Server=localhost,1433;Database=SportStore;User Id=sa;Password=Drgnnrblnc19;Trusted_Connection=False;MultipleActiveResultSets=True;"
     }
 
     stages {
-        stage('Initialize Variables') {
-            steps {
-                script {
-                    env.GIT_COMMIT = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
-                    env.GIT_AUTHOR_NAME = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
-                    env.GIT_AUTHOR_EMAIL = sh(script: "git log -1 --pretty=format:'%ae'", returnStdout: true).trim()
-                    env.GIT_COMMIT_MESSAGE = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
-                    env.GIT_BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
-                }
-            }
-        }
-
-        stage('Clean workspace') {
+        stage('Clean Workspace') {
             steps {
                 cleanWs()
             }
@@ -45,16 +33,21 @@ pipeline {
             }
         }
 
-        stage('Deployment to Remote Server') {
+        stage('Deploy to Remote Server') {
             steps {
-                sh '''
-                    scp -i ~/.ssh/id_rsa -r ${PUBLISH_OUTPUT}/* vagrant@172.16.128.101:/vagrant/output-pipeline || exit 1
-                    ssh -i ~/.ssh/id_rsa vagrant@172.16.128.101 "
-                        export DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT} \
-                               DOTNET_ConnectionStrings__SqlDatabase='${DOTNET_ConnectionStrings__SqlDatabase}' && \
-                        nohup dotnet /vagrant/output-pipeline/Server.dll > app.log 2>&1 &
-                    " || exit 1
-                '''
+                script {
+                    def remoteHost = "vagrant@172.16.128.101"
+                    def sshKey = "~/.ssh/id_rsa"
+                    
+                    sh """
+                        scp -i ${sshKey} -r ${PUBLISH_OUTPUT}/* ${remoteHost}:/vagrant/output-pipeline || exit 1
+                        ssh -i ${sshKey} ${remoteHost} '
+                            export DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT} &&
+                            export DOTNET_CONNECTION_STRING="${DOTNET_CONNECTION_STRING}" &&
+                            nohup dotnet /vagrant/output-pipeline/Server.dll > app.log 2>&1 &
+                        ' || exit 1
+                    """
+                }
             }
         }
     }
