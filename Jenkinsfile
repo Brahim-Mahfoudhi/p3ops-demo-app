@@ -33,23 +33,33 @@ pipeline {
             }
         }
 
-        stage('Capture Git Info') {
-            steps {
-                script {
-                    // Capture the author name and other info
-                    def authorName = sh(script: "git show -s --pretty=%an", returnStdout: true).trim()
-                    def authorEmail = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim()
-                    def commitMessage = sh(script: "git show -s --pretty=%B", returnStdout: true).trim()
-                    def commitHash = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
-
+      stage('Capture Git Info') {
+        steps {
+            script {
+                try {
+                    def authorName = sh(script: "git show -s --pretty=%an", returnStdout: true).trim() ?: "Unknown Author"
+                    def authorEmail = sh(script: "git show -s --pretty=%ae", returnStdout: true).trim() ?: "Unknown Email"
+                    def commitMessage = sh(script: "git show -s --pretty=%B", returnStdout: true).trim() ?: "No commit message"
+                    def commitHash = sh(script: "git rev-parse HEAD", returnStdout: true).trim() ?: "Unknown Commit"
+    
                     // Set environment variables for later use
                     env.GIT_AUTHOR_NAME = authorName
                     env.GIT_AUTHOR_EMAIL = authorEmail
                     env.GIT_COMMIT_MESSAGE = commitMessage
                     env.GIT_COMMIT = commitHash
+                    
+                    // Debug output
+                    echo "Author: ${env.GIT_AUTHOR_NAME}"
+                    echo "Email: ${env.GIT_AUTHOR_EMAIL}"
+                    echo "Commit: ${env.GIT_COMMIT}"
+                    echo "Message: ${env.GIT_COMMIT_MESSAGE}"
+                } catch (Exception e) {
+                    echo "Error capturing Git information: ${e.message}"
                 }
             }
         }
+    }
+
 
         stage('Deploy to Remote Server') {
             steps {
