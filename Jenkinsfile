@@ -14,7 +14,7 @@ pipeline {
             steps {
                 script {
                     echo "Checking out code..."
-                    git url: 'https://your-repo-url.git', branch: 'master' // Replace with your repository URL
+                    git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git', branch: 'master' // Replace with your repository URL
                 }
             }
         }
