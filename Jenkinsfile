@@ -14,7 +14,33 @@ pipeline {
             steps {
                 script {
                     echo "Checking out code..."
-                    git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git', branch: 'master'
+                    git url: 'https://your-repo-url.git', branch: 'master' // Replace with your repository URL
+                }
+            }
+        }
+
+        stage('Capture Git Info') {
+            steps {
+                script {
+                    try {
+                        echo "Capturing Git information..."
+                        def latestCommit = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
+                        env.GIT_COMMIT = latestCommit
+
+                        // Capture author and message
+                        def commitDetails = sh(script: "git show -s ${latestCommit} --pretty=format:'%an;%ae;%s'", returnStdout: true).trim()
+                        def detailsArray = commitDetails.split(";")
+
+                        env.GIT_AUTHOR_NAME = detailsArray.size() > 0 ? detailsArray[0] : "Unknown Author"
+                        env.GIT_AUTHOR_EMAIL = detailsArray.size() > 1 ? detailsArray[1] : "Unknown Email"
+                        env.GIT_COMMIT_MESSAGE = detailsArray.size() > 2 ? detailsArray[2] : "No commit message"
+                        env.GIT_BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim() ?: "Unknown Branch"
+
+                        // Debug output
+                        echo "Author: ${env.GIT_AUTHOR_NAME}, Email: ${env.GIT_AUTHOR_EMAIL}, Commit: ${env.GIT_COMMIT}, Message: ${env.GIT_COMMIT_MESSAGE}, Branch: ${env.GIT_BRANCH}"
+                    } catch (Exception e) {
+                        echo "Error capturing Git information: ${e.message}"
+                    }
                 }
             }
         }
@@ -43,26 +69,6 @@ pipeline {
             steps {
                 echo "Publishing application..."
                 sh "dotnet publish ${DOTNET_PROJECT_PATH} -c Release -o ${PUBLISH_OUTPUT}"
-            }
-        }
-
-        stage('Capture Git Info') {
-            steps {
-                script {
-                    try {
-                        echo "Capturing Git information..."
-                        env.GIT_AUTHOR_NAME = sh(script: "git show -s --pretty=format:'%an'", returnStdout: true).trim() ?: "Unknown Author"
-                        env.GIT_AUTHOR_EMAIL = sh(script: "git show -s --pretty=format:'%ae'", returnStdout: true).trim() ?: "Unknown Email"
-                        env.GIT_COMMIT_MESSAGE = sh(script: "git show -s --pretty=format:'%s'", returnStdout: true).trim() ?: "No commit message"
-                        env.GIT_COMMIT = sh(script: "git rev-parse HEAD", returnStdout: true).trim() ?: "Unknown Commit"
-                        env.GIT_BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim() ?: "Unknown Branch"
-
-                        // Debug output
-                        echo "Author: ${env.GIT_AUTHOR_NAME}, Email: ${env.GIT_AUTHOR_EMAIL}, Commit: ${env.GIT_COMMIT}, Message: ${env.GIT_COMMIT_MESSAGE}, Branch: ${env.GIT_BRANCH}"
-                    } catch (Exception e) {
-                        echo "Error capturing Git information: ${e.message}"
-                    }
-                }
             }
         }
 
