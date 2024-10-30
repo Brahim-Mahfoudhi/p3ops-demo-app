@@ -27,7 +27,7 @@ pipeline {
         stage('Linting and Static Code Analysis') {
             steps {
                 script {
-                   // sh "dotnet format ${DOTNET_PROJECT_PATH} --check"
+                    // sh "dotnet format ${DOTNET_PROJECT_PATH} --check"
                 }
             }
         }
@@ -43,7 +43,7 @@ pipeline {
         stage('Run Unit Tests') {
             steps {
                 script {
-                   // sh "dotnet test ${DOTNET_PROJECT_PATH} --logger trx;logfilename=TestResults.trx"
+                    // sh "dotnet test ${DOTNET_PROJECT_PATH} --logger trx;logfilename=TestResults.trx"
                 }
             }
         }
@@ -91,30 +91,34 @@ pipeline {
             }
         }
         success {
-            echo 'Build and deployment successful!'
-            
-            // Send success notification to Discord
-            discordSend(
-                description: "Jenkins Pipeline Build",
-                footer: "Footer Text",
-                link: env.BUILD_URL,
-                result: 'SUCCESS',
-                title: "${env.JOB_NAME} - Build Successful",
-                webhookURL: "${DISCORD_WEBHOOK}"
-            )
+            script {
+                echo 'Build and deployment successful!'
+                
+                // Send success notification to Discord
+                discordSend(
+                    description: "Jenkins Pipeline Build",
+                    footer: "Footer Text",
+                    link: env.BUILD_URL,
+                    result: 'SUCCESS',
+                    title: "${env.JOB_NAME} - Build Successful",
+                    webhookURL: "${DISCORD_WEBHOOK}"
+                )
+            }
         }
         failure {
-            echo 'Build or deployment failed.'
-            
-            // Send failure notification to Discord
-            discordSend(
-                description: "Jenkins Pipeline Build",
-                footer: "Footer Text",
-                link: env.BUILD_URL,
-                result: 'FAILURE',
-                title: "${env.JOB_NAME} - Build Failed",
-                webhookURL: "${DISCORD_WEBHOOK}"
-            )
+            script {
+                echo 'Build or deployment failed.'
+                
+                // Send failure notification to Discord
+                discordSend(
+                    description: "Jenkins Pipeline Build",
+                    footer: "Footer Text",
+                    link: env.BUILD_URL,
+                    result: 'FAILURE',
+                    title: "${env.JOB_NAME} - Build Failed",
+                    webhookURL: "${DISCORD_WEBHOOK}"
+                )
+            }
         }
     }
 }
