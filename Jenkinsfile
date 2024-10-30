@@ -21,7 +21,6 @@ pipeline {
             }
         }
 
-
         stage('Build Application') {
             steps {
                 sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release"
@@ -48,6 +47,7 @@ pipeline {
         }
     }
 
+    post {
         success {
             echo 'Build and deployment completed successfully!'
             discordSend(
@@ -82,4 +82,5 @@ pipeline {
                 ]
             )
         }
+    }
 }
