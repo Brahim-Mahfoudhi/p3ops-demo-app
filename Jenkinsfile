@@ -5,7 +5,7 @@ pipeline {
         DOTNET_PROJECT_PATH = 'p3ops-demo-app/src/Server/Server.csproj'
         PUBLISH_OUTPUT = 'publish'
         DOTNET_ENVIRONMENT = 'Production'
-        DOTNET_ConnectionStrings__SqlDatabase = '"Server=localhost,1433;Database=SportStore;User Id=sa;Password=Drgnnrblnc19;Trusted_Connection=False;MultipleActiveResultSets=True;"'
+        DOTNET_ConnectionStrings__SqlDatabase = "Server=localhost,1433;Database=SportStore;User Id=sa;Password=Drgnnrblnc19;Trusted_Connection=False;MultipleActiveResultSets=True;"
     }
 
     stages {
