@@ -9,6 +9,12 @@ pipeline {
         DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
     }
 
+    stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
     stages {
         stage('Checkout Code') {
             steps {
@@ -28,12 +34,6 @@ pipeline {
                     env.GIT_BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim() ?: "Unknown Branch"
                     echo "Author: ${env.GIT_AUTHOR_NAME}, Email: ${env.GIT_AUTHOR_EMAIL}, Commit: ${env.GIT_COMMIT}, Message: ${env.GIT_COMMIT_MESSAGE}, Branch: ${env.GIT_BRANCH}"
                 }
-            }
-        }
-
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()
             }
         }
 
