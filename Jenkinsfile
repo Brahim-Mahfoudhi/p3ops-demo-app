@@ -101,4 +101,16 @@ def sendDiscordNotification(status) {
             title: "${env.JOB_NAME} - ${status}",
             description: """
                 Build #${env.BUILD_NUMBER} ${status == "Build Success" ? 'completed successfully!' : 'has failed!'}
-                **Commit**: ${en
+                **Commit**: ${env.GIT_COMMIT}
+                **Author**: ${env.GIT_AUTHOR_NAME} <${env.GIT_AUTHOR_EMAIL}>
+                **Branch**: ${env.GIT_BRANCH}
+                **Message**: ${env.GIT_COMMIT_MESSAGE}
+                
+                [**Report**](http://172.16.128.100:8080/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/) - Detailed build report
+            """,
+            footer: "Build Duration: ${currentBuild.durationString.replace(' and counting', '')}",
+            webhookURL: DISCORD_WEBHOOK_URL,
+            result: status == "Build Success" ? 'SUCCESS' : 'FAILURE'
+        )
+    }
+}
