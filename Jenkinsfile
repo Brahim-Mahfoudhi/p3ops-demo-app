@@ -5,17 +5,17 @@ pipeline {
         DOTNET_PROJECT_PATH = 'p3ops-demo-app/src/Server/Server.csproj'
         PUBLISH_OUTPUT = 'publish'
         DOTNET_ENVIRONMENT = 'Production'
-        DOTNET_CONNECTION_STRING = "Server=localhost,1433;Database=SportStore;User Id=sa;Password=Drgnnrblnc19;Trusted_Connection=False;MultipleActiveResultSets=True;"
+        DOTNET_CONNECTION_STRING = credentials('your-credential-id') // Use Jenkins credentials
         DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
     }
 
-    stage('Clean Workspace') {
+    stages {
+        stage('Clean Workspace') {
             steps {
                 cleanWs()
             }
         }
 
-    stages {
         stage('Checkout Code') {
             steps {
                 echo "Checking out code..."
@@ -72,8 +72,7 @@ pipeline {
                     }
                 }
             }
-}
-
+        }
     }
 
     post {
@@ -102,16 +101,4 @@ def sendDiscordNotification(status) {
             title: "${env.JOB_NAME} - ${status}",
             description: """
                 Build #${env.BUILD_NUMBER} ${status == "Build Success" ? 'completed successfully!' : 'has failed!'}
-                **Commit**: ${env.GIT_COMMIT}
-                **Author**: ${env.GIT_AUTHOR_NAME} <${env.GIT_AUTHOR_EMAIL}>
-                **Branch**: ${env.GIT_BRANCH}
-                **Message**: ${env.GIT_COMMIT_MESSAGE}
-                
-                [**Report**](http://172.16.128.100:8080/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/) - Detailed build report
-            """,
-            footer: "Build Duration: ${currentBuild.durationString.replace(' and counting', '')}",
-            webhookURL: DISCORD_WEBHOOK_URL,
-            result: status == "Build Success" ? 'SUCCESS' : 'FAILURE'
-        )
-    }
-}
+                **Commit**: ${en
