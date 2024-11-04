@@ -16,13 +16,6 @@ pipeline {
             }
         }
 
-        stage('Checkout Code') {
-            steps {
-                echo "Checking out code..."
-                git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
-            }
-        }
-
 
         stage('Capture Git Info') {
             steps {
