@@ -37,16 +37,24 @@ pipeline {
             }
         }
 
-        stage('Restore, Build, and Publish') {
+        stage('Restore Dependencies') {
             steps {
-                sh """
-                    echo "Restoring dependencies..."
-                    dotnet restore ${DOTNET_PROJECT_PATH}
-                    echo "Building application..."
-                    dotnet build ${DOTNET_PROJECT_PATH} -c Release
-                    echo "Publishing application..."
-                    dotnet publish ${DOTNET_PROJECT_PATH} -c Release -o ${PUBLISH_OUTPUT}
-                """
+                echo "Restoring dependencies..."
+                sh "dotnet restore ${DOTNET_PROJECT_PATH}"
+            }
+        }
+
+        stage('Build Application') {
+            steps {
+                echo "Building application..."
+                sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release"
+            }
+        }
+
+        stage('Publish Application') {
+            steps {
+                echo "Publishing application..."
+                sh "dotnet publish ${DOTNET_PROJECT_PATH} -c Release -o ${PUBLISH_OUTPUT}"
             }
         }
 
@@ -109,7 +117,7 @@ def sendDiscordNotification(status) {
                 [**Report**](http://172.16.128.100:8080/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/) - Detailed build report
             """,
             footer: "Build Duration: ${currentBuild.durationString.replace(' and counting', '')}",
-            webhookURL: DISCORD_WEBHOOK_URL,
+            webhookURL: "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I",
             result: status == "Build Success" ? 'SUCCESS' : 'FAILURE'
         )
     }
