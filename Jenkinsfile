@@ -7,6 +7,7 @@ pipeline {
         DOTNET_ENVIRONMENT = 'Production'
         DOTNET_CONNECTION_STRING = 'Server=localhost,1433;Database=SportStore;User Id=sa;Password=Drgnnrblnc19;Trusted_Connection=False;MultipleActiveResultSets=True;'
         DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
+        JENKINS_CREDENTIALS_ID = 	"jenkins-master-key'
     }
 
     stages {
@@ -28,10 +29,10 @@ pipeline {
                 script {
                     def commitDetails = sh(script: "git show -s HEAD --pretty=format:'%an;%ae;%s'", returnStdout: true).trim().split(";")
                     env.GIT_COMMIT = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
-                    env.GIT_AUTHOR_NAME = commitDetails[0] ?: "Unknown Author"
-                    env.GIT_AUTHOR_EMAIL = commitDetails[1] ?: "Unknown Email"
-                    env.GIT_COMMIT_MESSAGE = commitDetails[2] ?: "No commit message"
-                    env.GIT_BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim() ?: "Unknown Branch"
+                    env.GIT_AUTHOR_NAME = commitDetails[0]
+                    env.GIT_AUTHOR_EMAIL = commitDetails[1]
+                    env.GIT_COMMIT_MESSAGE = commitDetails[2]
+                    env.GIT_BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
                     echo "Author: ${env.GIT_AUTHOR_NAME}, Email: ${env.GIT_AUTHOR_EMAIL}, Commit: ${env.GIT_COMMIT}, Message: ${env.GIT_COMMIT_MESSAGE}, Branch: ${env.GIT_BRANCH}"
                 }
             }
@@ -58,30 +59,21 @@ pipeline {
             }
         }
 
-        stage('Deploy to Remote Server') {
+       stage('Deploy') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-master-key', 
-                                                   keyFileVariable: 'SSH_KEY_FILE',
-                                                   usernameVariable: 'SSH_USER')]) {
-                    script {
-                        def remoteHost = "${SSH_USER}@172.16.128.101"
-                        
-                        sh """
-                            # Copy files to the remote server
-                            scp -i ${SSH_KEY_FILE} -r ${PUBLISH_OUTPUT}/* ${remoteHost}:/vagrant/output-pipeline
-                            
-                            # Run the application on the remote server
-                            ssh -i ${SSH_KEY_FILE} ${remoteHost} '
-                                export DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT} &&
-                                export DOTNET_CONNECTION_STRING="${DOTNET_CONNECTION_STRING}" &&
-                                nohup dotnet /vagrant/output-pipeline/Server.dll > app.log 2>&1 &
-                            '
-                        """
-                    }
+                withCredentials([sshUserPrivateKey(credentialsId: ${JENKINS_CREDENTIALS_ID}, keyFileVariable: 'SSH_KEY_FILE')]) {
+                    // Ensure host key verification
+                    sh 'ssh-keyscan -H 172.16.128.101 >> ~/.ssh/known_hosts || true' 
+
+                    sh """
+                        scp -i ${SSH_KEY_FILE} -r publish/* jenkins@172.16.128.101:/vagrant/output-pipeline
+                    """
                 }
             }
         }
     }
+}
+}
 
     post {
         success {
