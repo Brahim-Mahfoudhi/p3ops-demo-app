@@ -25,20 +25,6 @@ pipeline {
             }
         }
 
-        stage('Capture Git Info') {
-            steps {
-                script {
-                    def commitDetails = sh(script: "git show -s HEAD --pretty=format:'%an;%ae;%s'", returnStdout: true).trim().split(";")
-                    env.GIT_COMMIT = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
-                    env.GIT_AUTHOR_NAME = commitDetails[0]
-                    env.GIT_AUTHOR_EMAIL = commitDetails[1]
-                    env.GIT_COMMIT_MESSAGE = commitDetails[2]
-                    env.GIT_BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
-                    echo "Author: ${env.GIT_AUTHOR_NAME}, Email: ${env.GIT_AUTHOR_EMAIL}, Commit: ${env.GIT_COMMIT}, Message: ${env.GIT_COMMIT_MESSAGE}, Branch: ${env.GIT_BRANCH}"
-                }
-            }
-        }
-
         stage('Restore Dependencies') {
             steps {
                 echo "Restoring dependencies..."
@@ -104,6 +90,14 @@ pipeline {
 
 def sendDiscordNotification(status) {
     script {
+        // Capture Git info here
+        def commitDetails = sh(script: "git show -s HEAD --pretty=format:'%an;%ae;%s'", returnStdout: true).trim().split(";")
+        env.GIT_COMMIT = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
+        env.GIT_AUTHOR_NAME = commitDetails[0]
+        env.GIT_AUTHOR_EMAIL = commitDetails[1]
+        env.GIT_COMMIT_MESSAGE = commitDetails[2]
+        env.GIT_BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+        
         discordSend(
             title: "${env.JOB_NAME} - ${status}",
             description: """
