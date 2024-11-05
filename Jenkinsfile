@@ -20,28 +20,24 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                echo "Checking out code..."
                 git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
             }
         }
 
         stage('Restore Dependencies') {
             steps {
-                echo "Restoring dependencies..."
                 sh "dotnet restore ${DOTNET_PROJECT_PATH}"
             }
         }
 
         stage('Build Application') {
             steps {
-                echo "Building application..."
                 sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release"
             }
         }
 
         stage('Publish Application') {
             steps {
-                echo "Publishing application..."
                 sh "dotnet publish ${DOTNET_PROJECT_PATH} -c Release -o ${PUBLISH_OUTPUT}"
             }
         }
@@ -90,15 +86,22 @@ pipeline {
 
 def sendDiscordNotification(status) {
     script {
-        // Capture Git info here without logging to the console
-        def commitDetails = sh(script: "git show -s HEAD --pretty=format:'%an;%ae;%s'", returnStdout: true).trim().split(";")
-        env.GIT_COMMIT = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
-        env.GIT_AUTHOR_NAME = commitDetails[0]
-        env.GIT_AUTHOR_EMAIL = commitDetails[1]
-        env.GIT_COMMIT_MESSAGE = commitDetails[2]
-        env.GIT_BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
+        // Combine Git commands into one sh block
+        def gitInfo = sh(script: '''
+            AUTHOR_NAME=$(git show -s HEAD --pretty=format:"%an")
+            AUTHOR_EMAIL=$(git show -s HEAD --pretty=format:"%ae")
+            COMMIT_MESSAGE=$(git show -s HEAD --pretty=format:"%s")
+            GIT_COMMIT=$(git rev-parse HEAD)
+            GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            echo "$AUTHOR_NAME;$AUTHOR_EMAIL;$COMMIT_MESSAGE;$GIT_COMMIT;$GIT_BRANCH"
+        ''', returnStdout: true).trim().split(";")
         
-        // Send notification to Discord
+        env.GIT_AUTHOR_NAME = gitInfo[0]
+        env.GIT_AUTHOR_EMAIL = gitInfo[1]
+        env.GIT_COMMIT_MESSAGE = gitInfo[2]
+        env.GIT_COMMIT = gitInfo[3]
+        env.GIT_BRANCH = gitInfo[4]
+
         discordSend(
             title: "${env.JOB_NAME} - ${status}",
             description: """
@@ -116,3 +119,4 @@ def sendDiscordNotification(status) {
         )
     }
 }
+
