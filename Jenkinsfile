@@ -90,15 +90,24 @@ def mysh(cmd) {
 
 def sendDiscordNotification(status) {
     script {
-        // Using mysh to gather Git information
-        gitInfo = mysh('''
-            # Gather Git information without printing commands
+        // Gather Git information without producing console output
+        def gitInfo = mysh('''
             AUTHOR_NAME=$(git show -s HEAD --pretty=format:"%an" 2>/dev/null)
             AUTHOR_EMAIL=$(git show -s HEAD --pretty=format:"%ae" 2>/dev/null)
             COMMIT_MESSAGE=$(git show -s HEAD --pretty=format:"%s" 2>/dev/null)
             GIT_COMMIT=$(git rev-parse HEAD 2>/dev/null)
             GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-          ''')
+            echo "$AUTHOR_NAME"
+            echo "$AUTHOR_EMAIL"
+            echo "$COMMIT_MESSAGE"
+            echo "$GIT_COMMIT"
+            echo "$GIT_BRANCH"
+        ''').trim().split("\n")
+
+        // Ensure we have gathered the expected number of values
+        if (gitInfo.size() < 5) {
+            error("Failed to gather sufficient Git information.")
+        }
 
         // Set environment variables without exposing them in the console
         env.GIT_AUTHOR_NAME = gitInfo[0]
@@ -124,4 +133,5 @@ def sendDiscordNotification(status) {
         )
     }
 }
+
 
