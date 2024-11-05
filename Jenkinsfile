@@ -95,7 +95,7 @@ pipeline {
                 [allowMissing: false, 
                  alwaysLinkToLastBuild: false, 
                  keepAll: false, 
-                 reportDir: '/var/lib/jenkins/reports/', 
+                 reportDir: 'reports', 
                  reportFiles: 'index.html', 
                  reportName: 'HTML Report', 
                  reportTitles: '', 
