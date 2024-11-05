@@ -101,7 +101,7 @@ pipeline {
                 [allowMissing: false, 
                  alwaysLinkToLastBuild: false, 
                  keepAll: false, 
-                 reportDir: 'reports/',  // Make sure this matches where your report is generated
+                 reportDir: 'reports',  // Make sure this matches where your report is generated
                  reportFiles: 'index.html', 
                  reportName: 'HTML Report', 
                  reportTitles: 'BD RP', 
