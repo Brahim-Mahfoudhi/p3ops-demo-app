@@ -20,7 +20,16 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
+                script {
+                    git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
+                    gitInfo = sh(script: 'git show -s HEAD --pretty=format:"%an%n%ae%n%s%n%H%n%h" 2>/dev/null', returnStdout: true).trim().split("\n")
+                    if (gitInfo.size() < 5) error("Insufficient Git information.")
+                    env.GIT_AUTHOR_NAME = gitInfo[0]
+                    env.GIT_AUTHOR_EMAIL = gitInfo[1]
+                    env.GIT_COMMIT_MESSAGE = gitInfo[2]
+                    env.GIT_COMMIT = gitInfo[3]
+                    env.GIT_BRANCH = gitInfo[4]
+                }
             }
         }
 
@@ -59,32 +68,6 @@ pipeline {
                             '
                         """
                     }
-                }
-            }
-        }
-
-        stage('Git Information') {  // New stage for gathering Git information
-            steps {
-                script {
-                    def gitInfo = mysh('''
-                        AUTHOR_NAME=$(git show -s HEAD --pretty=format:"%an" 2>/dev/null)
-                        AUTHOR_EMAIL=$(git show -s HEAD --pretty=format:"%ae" 2>/dev/null)
-                        COMMIT_MESSAGE=$(git show -s HEAD --pretty=format:"%s" 2>/dev/null)
-                        GIT_COMMIT=$(git rev-parse HEAD 2>/dev/null)
-                        GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-                    ''').split("\n")
-
-                    // Ensure we have gathered the expected number of values
-                    if (gitInfo.size() < 5) {
-                        error("Failed to gather sufficient Git information.")
-                    }
-
-                    // Set environment variables for later use
-                    env.GIT_AUTHOR_NAME = gitInfo[0]
-                    env.GIT_AUTHOR_EMAIL = gitInfo[1]
-                    env.GIT_COMMIT_MESSAGE = gitInfo[2]
-                    env.GIT_COMMIT = gitInfo[3]
-                    env.GIT_BRANCH = gitInfo[4]
                 }
             }
         }
