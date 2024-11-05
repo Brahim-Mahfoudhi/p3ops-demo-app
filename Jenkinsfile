@@ -59,6 +59,14 @@ pipeline {
             }
         }
 
+        stage('Generate Reports') {
+            steps {
+                sh 'mkdir -p reports'  // Create reports directory
+                // Assuming you generate a report from tests
+                sh 'dotnet test ${DOTNET_PROJECT_PATH} --logger:html;logFilePath=reports/index.html'
+            }
+        }
+
         stage('Deploy to Remote Server') {
             steps {
                 sshagent([JENKINS_CREDENTIALS_ID]) {
@@ -89,17 +97,16 @@ pipeline {
         }
         always {
             echo 'Build process has completed.'
-            
-            // Publish HTML report regardless of build result
             publishHTML(
                 [allowMissing: false, 
                  alwaysLinkToLastBuild: false, 
                  keepAll: false, 
-                 reportDir: 'reports/', 
+                 reportDir: 'reports/',  // Make sure this matches where your report is generated
                  reportFiles: 'index.html', 
                  reportName: 'HTML Report', 
                  reportTitles: 'BD RP', 
-                 useWrapperFileDirectly: true])
+                 useWrapperFileDirectly: true]
+            )
         }
     }
 }
