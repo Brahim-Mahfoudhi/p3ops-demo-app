@@ -94,11 +94,12 @@ pipeline {
             publishHTML(
                 [allowMissing: false, 
                  alwaysLinkToLastBuild: false, 
+                 includes: '**/*'
                  keepAll: false, 
-                 reportDir: 'reports', 
+                 reportDir: 'reports/', 
                  reportFiles: 'index.html', 
                  reportName: 'HTML Report', 
-                 reportTitles: '', 
+                 reportTitles: 'BD RP', 
                  useWrapperFileDirectly: true])
         }
     }
