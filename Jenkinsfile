@@ -58,8 +58,9 @@ pipeline {
                             nohup dotnet /var/lib/jenkins/app/Server.dll > app.log 2>&1 &
                         '
                     """
-            }
-         }
+                }
+             }
+        }
     }
 }
 
