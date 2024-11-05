@@ -87,15 +87,15 @@ pipeline {
 def sendDiscordNotification(status) {
     script {
         // Combine Git commands into one sh block without printing sensitive info
-     sh(script: '''
-        #!/bin/bash
-        AUTHOR_NAME=$(git show -s HEAD --pretty=format:"%an" 2>/dev/null)
-        AUTHOR_EMAIL=$(git show -s HEAD --pretty=format:"%ae" 2>/dev/null)
-        COMMIT_MESSAGE=$(git show -s HEAD --pretty=format:"%s" 2>/dev/null)
-        GIT_COMMIT=$(git rev-parse HEAD 2>/dev/null)
-        GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-        echo "$AUTHOR_NAME;$AUTHOR_EMAIL;$COMMIT_MESSAGE;$GIT_COMMIT;$GIT_BRANCH"
-    ''', returnStdout: true)
+        def gitInfo = sh(script: '''
+            #!/bin/bash
+            AUTHOR_NAME=$(git show -s HEAD --pretty=format:"%an" 2>/dev/null)
+            AUTHOR_EMAIL=$(git show -s HEAD --pretty=format:"%ae" 2>/dev/null)
+            COMMIT_MESSAGE=$(git show -s HEAD --pretty=format:"%s" 2>/dev/null)
+            GIT_COMMIT=$(git rev-parse HEAD 2>/dev/null)
+            GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+            echo "$AUTHOR_NAME;$AUTHOR_EMAIL;$COMMIT_MESSAGE;$GIT_COMMIT;$GIT_BRANCH"
+        ''', returnStdout: true).trim().split(';')
 
         // Set environment variables without exposing them in the console
         env.GIT_AUTHOR_NAME = gitInfo[0]
@@ -121,3 +121,4 @@ def sendDiscordNotification(status) {
         )
     }
 }
+
