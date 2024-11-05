@@ -100,13 +100,12 @@ def sendDiscordNotification(status) {
             set -x
 
         // Set environment variables without exposing them in the console
-        withEnv([
-            "GIT_AUTHOR_NAME=${gitInfo[0]}",
-            "GIT_AUTHOR_EMAIL=${gitInfo[1]}",
-            "GIT_COMMIT_MESSAGE=${gitInfo[2]}",
-            "GIT_COMMIT=${gitInfo[3]}",
-            "GIT_BRANCH=${gitInfo[4]}"
-        ]) {
+            env.GIT_AUTHOR_NAME = gitInfo[0]
+            env.GIT_AUTHOR_EMAIL = gitInfo[1]
+            env.GIT_COMMIT_MESSAGE = gitInfo[2]
+            env.GIT_COMMIT = gitInfo[3]
+            env.GIT_BRANCH = gitInfo[4]
+
             discordSend(
                 title: "${env.JOB_NAME} - ${status}",
                 description: """
