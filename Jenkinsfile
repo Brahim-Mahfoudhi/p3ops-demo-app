@@ -88,6 +88,8 @@ def sendDiscordNotification(status) {
     script {
         // Combine Git commands into one sh block without printing sensitive info
         def gitInfo = sh(script: '''
+            #!/bin/bash
+            set +x # Disable command echoing
             AUTHOR_NAME=$(git show -s HEAD --pretty=format:"%an")
             AUTHOR_EMAIL=$(git show -s HEAD --pretty=format:"%ae")
             COMMIT_MESSAGE=$(git show -s HEAD --pretty=format:"%s")
