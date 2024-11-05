@@ -71,7 +71,7 @@ pipeline {
                             ssh -i ${SSH_KEY_FILE} ${remoteHost} '
                                 export DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT} &&
                                 export DOTNET_CONNECTION_STRING="${DOTNET_CONNECTION_STRING}" &&
-                                nohup dotnet /var/lib/jenkins/app/Server.dll > app.log 2>&1 &
+                                nohup dotnet /var/lib/jenkins/output-pipeline/Server.dll > app.log 2>&1 &
                             '
                         """
                     }
