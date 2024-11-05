@@ -9,6 +9,7 @@ pipeline {
         DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
         JENKINS_CREDENTIALS_ID = "jenkins-master-key"
         SSH_KEY_FILE = '/var/lib/jenkins/.ssh/id_rsa' 
+        REMOTE_HOST = 'jenkins@172.16.128.101'
     }
 
     stages {
@@ -62,17 +63,19 @@ pipeline {
             steps {
                 sshagent([JENKINS_CREDENTIALS_ID]) {
                     script {
-                        def remoteHost = "jenkins@172.16.128.101"
+                        def remoteHost = "${REMOTE_HOST}"
+                        def sshKeyFile = "${SSH_KEY_FILE}"
+        
                         sh """
                             # Copy files to the remote server
-                            scp -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no -r ${PUBLISH_OUTPUT}/* ${remoteHost}:/var/lib/jenkins/output-pipeline
+                            scp -i ${sshKeyFile} -o StrictHostKeyChecking=no -r ${PUBLISH_OUTPUT}/* ${remoteHost}:/var/lib/jenkins/output-pipeline
                             
                             # Run the application on the remote server
-                            ssh -i ${SSH_KEY_FILE} ${remoteHost} '
-                                export DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT} &&
-                                export DOTNET_CONNECTION_STRING="${DOTNET_CONNECTION_STRING}" &&
-                                nohup dotnet /var/lib/jenkins/output-pipeline/Server.dll > app.log 2>&1 &
-                            '
+                            ssh -i ${sshKeyFile} -o StrictHostKeyChecking=no ${remoteHost} << 'EOF'
+                                export DOTNET_ENVIRONMENT="${DOTNET_ENVIRONMENT}"
+                                export DOTNET_CONNECTION_STRING="${DOTNET_CONNECTION_STRING}"
+                                dotnet /var/lib/jenkins/output-pipeline/Server.dll > /var/lib/jenkins/output-pipeline/app.log 2>&1 &
+                            EOF
                         """
                     }
                 }
