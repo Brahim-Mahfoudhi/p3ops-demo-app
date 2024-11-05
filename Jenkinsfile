@@ -22,6 +22,12 @@ pipeline {
             steps {
                 script {
                     git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
+            }
+        }
+
+        stage('Gather Git Information') {
+            steps {
+                script {
                     gitInfo = sh(script: 'git show -s HEAD --pretty=format:"%an%n%ae%n%s%n%H%n%h" 2>/dev/null', returnStdout: true).trim().split("\n")
                     if (gitInfo.size() < 5) error("Insufficient Git information.")
                     env.GIT_AUTHOR_NAME = gitInfo[0]
