@@ -84,25 +84,21 @@ pipeline {
     }
 }
 
+// Updated mysh function to include quiet: true
 def mysh(cmd) {
-    sh('#!/bin/sh -e\n' + cmd)
+    sh(script: '#!/bin/sh -e\n' + cmd, returnStdout: true, quiet: true).trim()
 }
 
 def sendDiscordNotification(status) {
     script {
-        // Gather Git information without producing console output
+        // Run Git commands quietly and capture output in a single command
         def gitInfo = mysh('''
             AUTHOR_NAME=$(git show -s HEAD --pretty=format:"%an" 2>/dev/null)
             AUTHOR_EMAIL=$(git show -s HEAD --pretty=format:"%ae" 2>/dev/null)
             COMMIT_MESSAGE=$(git show -s HEAD --pretty=format:"%s" 2>/dev/null)
             GIT_COMMIT=$(git rev-parse HEAD 2>/dev/null)
             GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-            echo "$AUTHOR_NAME"
-            echo "$AUTHOR_EMAIL"
-            echo "$COMMIT_MESSAGE"
-            echo "$GIT_COMMIT"
-            echo "$GIT_BRANCH"
-        ''').trim().split("\n")
+        ''').split("\n")
 
         // Ensure we have gathered the expected number of values
         if (gitInfo.size() < 5) {
