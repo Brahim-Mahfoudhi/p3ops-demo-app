@@ -64,6 +64,26 @@ pipeline {
              }
         }
     }
+
+       post {
+        success {
+            echo 'Build and deployment completed successfully!'
+            script {
+                sendDiscordNotification("Build Success")
+            }
+            archiveArtifacts artifacts: '**/*.dll', fingerprint: true
+        }
+        failure {
+            echo 'Build or deployment has failed.'
+            script {
+                sendDiscordNotification("Build Failed")
+            }
+        }
+        always {
+            echo 'Build process has completed.'
+        }
+    }
+}
 }
 
 def sendDiscordNotification(status) {
