@@ -69,13 +69,6 @@ pipeline {
                         sh """
                             # Copy files to the remote server
                             scp -i ${sshKeyFile} -o StrictHostKeyChecking=no -r ${PUBLISH_OUTPUT}/* ${remoteHost}:/var/lib/jenkins/output-pipeline
-                            
-                            # Run the application on the remote server
-                            ssh -i ${sshKeyFile} -o StrictHostKeyChecking=no ${remoteHost} << 'EOF'
-                                export DOTNET_ENVIRONMENT="${DOTNET_ENVIRONMENT}"
-                                export DOTNET_CONNECTION_STRING="${DOTNET_CONNECTION_STRING}"
-                                dotnet /var/lib/jenkins/output-pipeline/Server.dll > /var/lib/jenkins/output-pipeline/app.log 2>&1 &
-                            EOF
                         """
                     }
                 }
