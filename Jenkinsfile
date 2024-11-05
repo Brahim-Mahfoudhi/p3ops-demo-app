@@ -94,7 +94,6 @@ pipeline {
             publishHTML(
                 [allowMissing: false, 
                  alwaysLinkToLastBuild: false, 
-                 includes: '**/*',
                  keepAll: false, 
                  reportDir: 'reports/', 
                  reportFiles: 'index.html', 
