@@ -20,25 +20,25 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git', quiet: true
+                git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
             }
         }
 
         stage('Restore Dependencies') {
             steps {
-                sh(script: "dotnet restore ${DOTNET_PROJECT_PATH}", quiet: true)
+                sh "dotnet restore ${DOTNET_PROJECT_PATH}"
             }
         }
 
         stage('Build Application') {
             steps {
-                sh(script: "dotnet build ${DOTNET_PROJECT_PATH} -c Release", quiet: true)
+                sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release"
             }
         }
 
         stage('Publish Application') {
             steps {
-                sh(script: "dotnet publish ${DOTNET_PROJECT_PATH} -c Release -o ${PUBLISH_OUTPUT}", quiet: true)
+                sh "dotnet publish ${DOTNET_PROJECT_PATH} -c Release -o ${PUBLISH_OUTPUT}"
             }
         }
 
@@ -47,22 +47,44 @@ pipeline {
                 sshagent([JENKINS_CREDENTIALS_ID]) {
                     script {
                         def remoteHost = "jenkins@172.16.128.101"
-                        try {
-                            // Copy files to the remote server
-                            sh(script: "scp -i ${SSH_KEY_FILE} -r ${PUBLISH_OUTPUT}/* ${remoteHost}:/vagrant/output-pipeline", quiet: true)
-
-                            // Run the application on the remote server
-                            sh(script: """
-                                ssh -i ${SSH_KEY_FILE} ${remoteHost} '
-                                    export DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT} &&
-                                    export DOTNET_CONNECTION_STRING="${DOTNET_CONNECTION_STRING}" &&
-                                    nohup dotnet /var/lib/jenkins/app/Server.dll > app.log 2>&1 &
-                                '
-                            """, quiet: true)
-                        } catch (Exception e) {
-                            error("Deployment failed: ${e.message}")
-                        }
+                        sh """
+                            # Copy files to the remote server
+                            scp -i ${SSH_KEY_FILE} -r ${PUBLISH_OUTPUT}/* ${remoteHost}:/vagrant/output-pipeline
+                            
+                            # Run the application on the remote server
+                            ssh -i ${SSH_KEY_FILE} ${remoteHost} '
+                                export DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT} &&
+                                export DOTNET_CONNECTION_STRING="${DOTNET_CONNECTION_STRING}" &&
+                                nohup dotnet /var/lib/jenkins/app/Server.dll > app.log 2>&1 &
+                            '
+                        """
                     }
+                }
+            }
+        }
+
+        stage('Git Information') {  // New stage for gathering Git information
+            steps {
+                script {
+                    def gitInfo = mysh('''
+                        AUTHOR_NAME=$(git show -s HEAD --pretty=format:"%an" 2>/dev/null)
+                        AUTHOR_EMAIL=$(git show -s HEAD --pretty=format:"%ae" 2>/dev/null)
+                        COMMIT_MESSAGE=$(git show -s HEAD --pretty=format:"%s" 2>/dev/null)
+                        GIT_COMMIT=$(git rev-parse HEAD 2>/dev/null)
+                        GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+                    ''').split("\n")
+
+                    // Ensure we have gathered the expected number of values
+                    if (gitInfo.size() < 5) {
+                        error("Failed to gather sufficient Git information.")
+                    }
+
+                    // Set environment variables for later use
+                    env.GIT_AUTHOR_NAME = gitInfo[0]
+                    env.GIT_AUTHOR_EMAIL = gitInfo[1]
+                    env.GIT_COMMIT_MESSAGE = gitInfo[2]
+                    env.GIT_COMMIT = gitInfo[3]
+                    env.GIT_BRANCH = gitInfo[4]
                 }
             }
         }
@@ -72,7 +94,6 @@ pipeline {
         success {
             echo 'Build and deployment completed successfully!'
             script {
-                gatherGitInfo()
                 sendDiscordNotification("Build Success")
             }
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
@@ -80,7 +101,6 @@ pipeline {
         failure {
             echo 'Build or deployment has failed.'
             script {
-                gatherGitInfo()
                 sendDiscordNotification("Build Failed")
             }
         }
@@ -90,29 +110,7 @@ pipeline {
     }
 }
 
-// Gather Git information in a separate function
-def gatherGitInfo() {
-    def gitInfo = mysh('''\
-        AUTHOR_NAME=$(git show -s HEAD --pretty=format:"%an" 2>/dev/null)
-        AUTHOR_EMAIL=$(git show -s HEAD --pretty=format:"%ae" 2>/dev/null)
-        COMMIT_MESSAGE=$(git show -s HEAD --pretty=format:"%s" 2>/dev/null)
-        GIT_COMMIT=$(git rev-parse HEAD 2>/dev/null)
-        GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-    ''').split("\n")
-
-    // Ensure we have gathered the expected number of values
-    if (gitInfo.size() < 5) {
-        error("Failed to gather sufficient Git information.")
-    }
-
-    // Set environment variables without exposing them in the console
-    env.GIT_AUTHOR_NAME = gitInfo[0]
-    env.GIT_AUTHOR_EMAIL = gitInfo[1]
-    env.GIT_COMMIT_MESSAGE = gitInfo[2]
-    env.GIT_COMMIT = gitInfo[3]
-    env.GIT_BRANCH = gitInfo[4]
-}
-
+// Updated mysh function to include quiet: true
 def mysh(cmd) {
     sh(script: '#!/bin/sh -e\n' + cmd, returnStdout: true, quiet: true).trim()
 }
