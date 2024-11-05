@@ -65,7 +65,7 @@ pipeline {
                         def remoteHost = "jenkins@172.16.128.101"
                         sh """
                             # Copy files to the remote server
-                            scp -i ${SSH_KEY_FILE} -r ${PUBLISH_OUTPUT}/* ${remoteHost}:/vagrant/output-pipeline
+                            scp -i ${SSH_KEY_FILE} -r ${PUBLISH_OUTPUT}/* ${remoteHost}:/var/lib/jenkins/output-pipeline
                             
                             # Run the application on the remote server
                             ssh -i ${SSH_KEY_FILE} ${remoteHost} '
