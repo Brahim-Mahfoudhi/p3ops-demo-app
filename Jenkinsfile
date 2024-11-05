@@ -20,25 +20,25 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
+                git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git', quiet: true
             }
         }
 
         stage('Restore Dependencies') {
             steps {
-                sh "dotnet restore ${DOTNET_PROJECT_PATH}"
+                sh(script: "dotnet restore ${DOTNET_PROJECT_PATH}", quiet: true)
             }
         }
 
         stage('Build Application') {
             steps {
-                sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release"
+                sh(script: "dotnet build ${DOTNET_PROJECT_PATH} -c Release", quiet: true)
             }
         }
 
         stage('Publish Application') {
             steps {
-                sh "dotnet publish ${DOTNET_PROJECT_PATH} -c Release -o ${PUBLISH_OUTPUT}"
+                sh(script: "dotnet publish ${DOTNET_PROJECT_PATH} -c Release -o ${PUBLISH_OUTPUT}", quiet: true)
             }
         }
 
@@ -49,16 +49,16 @@ pipeline {
                         def remoteHost = "jenkins@172.16.128.101"
                         try {
                             // Copy files to the remote server
-                            sh "scp -i ${SSH_KEY_FILE} -r ${PUBLISH_OUTPUT}/* ${remoteHost}:/vagrant/output-pipeline"
-                            
+                            sh(script: "scp -i ${SSH_KEY_FILE} -r ${PUBLISH_OUTPUT}/* ${remoteHost}:/vagrant/output-pipeline", quiet: true)
+
                             // Run the application on the remote server
-                            sh """
+                            sh(script: """
                                 ssh -i ${SSH_KEY_FILE} ${remoteHost} '
                                     export DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT} &&
                                     export DOTNET_CONNECTION_STRING="${DOTNET_CONNECTION_STRING}" &&
                                     nohup dotnet /var/lib/jenkins/app/Server.dll > app.log 2>&1 &
                                 '
-                            """
+                            """, quiet: true)
                         } catch (Exception e) {
                             error("Deployment failed: ${e.message}")
                         }
