@@ -95,7 +95,7 @@ pipeline {
                 [allowMissing: false, 
                  alwaysLinkToLastBuild: false, 
                  keepAll: false, 
-                 reportDir: 'reports/', 
+                 reportDir: '/var/lib/jenkins/jobs/dotnet_pipeline/reports/', 
                  reportFiles: 'index.html', 
                  reportName: 'HTML Report', 
                  reportTitles: 'BD RP', 
