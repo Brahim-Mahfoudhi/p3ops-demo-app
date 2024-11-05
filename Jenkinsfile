@@ -22,6 +22,7 @@ pipeline {
             steps {
                 script {
                     git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
+                }
             }
         }
 
