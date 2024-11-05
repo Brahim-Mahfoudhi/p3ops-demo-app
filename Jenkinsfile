@@ -95,7 +95,6 @@ def sendDiscordNotification(status) {
             COMMIT_MESSAGE=$(git show -s HEAD --pretty=format:"%s")
             GIT_COMMIT=$(git rev-parse HEAD)
             GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-            echo "$AUTHOR_NAME;$AUTHOR_EMAIL;$COMMIT_MESSAGE;$GIT_COMMIT;$GIT_BRANCH"
         ''', returnStdout: true).trim().split(";")
 
         // Set environment variables without exposing them in the console
