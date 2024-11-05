@@ -24,7 +24,6 @@ pipeline {
             }
         }
 
-
         stage('Restore Dependencies') {
             steps {
                 sh "dotnet restore ${DOTNET_PROJECT_PATH}"
@@ -45,7 +44,7 @@ pipeline {
 
         stage('Deploy to Remote Server') {
             steps {
-                sshagent(['jenkins-master-key']) {
+                sshagent(['${JENKINS_CREDENTIALS_ID}']) {
                     script {
                         def remoteHost = "jenkins@172.16.128.101"
                         sh """
@@ -61,11 +60,11 @@ pipeline {
                         """
                     }
                 }
-             }
+            }
         }
     }
 
-       post {
+    post {
         success {
             echo 'Build and deployment completed successfully!'
             script {
@@ -83,7 +82,6 @@ pipeline {
             echo 'Build process has completed.'
         }
     }
-}
 }
 
 def sendDiscordNotification(status) {
