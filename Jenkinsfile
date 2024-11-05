@@ -63,12 +63,9 @@ pipeline {
             steps {
                 sshagent([JENKINS_CREDENTIALS_ID]) {
                     script {
-                        def remoteHost = "${REMOTE_HOST}"
-                        def sshKeyFile = "${SSH_KEY_FILE}"
-        
                         sh """
                             # Copy files to the remote server
-                            scp -i ${sshKeyFile} -o StrictHostKeyChecking=no -r ${PUBLISH_OUTPUT}/* ${remoteHost}:/var/lib/jenkins/output-pipeline
+                            scp -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no -r ${PUBLISH_OUTPUT}/* ${REMOTE_HOST}:/var/lib/jenkins/output-pipeline
                         """
                     }
                 }
@@ -94,14 +91,17 @@ pipeline {
             echo 'Build process has completed.'
             
             // Publish HTML report regardless of build result
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/var/lib/jenkins/reports', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+            publishHTML(
+                [allowMissing: false, 
+                 alwaysLinkToLastBuild: false, 
+                 keepAll: false, 
+                 reportDir: '/var/lib/jenkins/reports/', 
+                 reportFiles: 'index.html', 
+                 reportName: 'HTML Report', 
+                 reportTitles: '', 
+                 useWrapperFileDirectly: true])
         }
     }
-}
-
-// Updated mysh function to include quiet: true
-def mysh(cmd) {
-    sh(script: '#!/bin/sh -e\n' + cmd, returnStdout: true, quiet: true).trim()
 }
 
 def sendDiscordNotification(status) {
