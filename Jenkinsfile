@@ -90,7 +90,7 @@ pipeline {
 
 def sendDiscordNotification(status) {
     script {
-        // Capture Git info here
+        // Capture Git info here without logging to the console
         def commitDetails = sh(script: "git show -s HEAD --pretty=format:'%an;%ae;%s'", returnStdout: true).trim().split(";")
         env.GIT_COMMIT = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
         env.GIT_AUTHOR_NAME = commitDetails[0]
@@ -98,6 +98,7 @@ def sendDiscordNotification(status) {
         env.GIT_COMMIT_MESSAGE = commitDetails[2]
         env.GIT_BRANCH = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
         
+        // Send notification to Discord
         discordSend(
             title: "${env.JOB_NAME} - ${status}",
             description: """
