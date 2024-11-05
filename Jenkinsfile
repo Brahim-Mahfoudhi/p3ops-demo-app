@@ -99,6 +99,9 @@ pipeline {
         }
         always {
             echo 'Build process has completed.'
+            
+            // Publish HTML report regardless of build result
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/var/lib/jenkins/reports', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
         }
     }
 }
