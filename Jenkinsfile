@@ -87,8 +87,8 @@ pipeline {
         }
         always {
             echo 'Build process has completed.'
-            /* publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, 
-                reportDir: 'reports', reportFiles: 'dotnet-report.html', reportName: '.Net Test Report']) */
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, 
+                reportDir: 'reports', reportFiles: 'dotnet-report.html', reportName: '.Net Test Report'])
         }
     }
 }
