@@ -95,6 +95,7 @@ pipeline {
                 mkdir -p coverage
                 chown -R jenkins:jenkins coverage
                 chmod 755 coverage
+                touch test.html
             '''
             publishHTML target: [
               allowMissing: false,
