@@ -62,7 +62,7 @@ pipeline {
                     script {
                         sh """
                             # Copy files to the remote server
-                            scp -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no -r ${PUBLISH_OUTPUT}/* ${REMOTE_HOST}:/var/lib/jenkins/output-pipeline
+                            scp -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no -r ${PUBLISH_OUTPUT}/* ${REMOTE_HOST}:/var/lib/jenkins/artifacts/
                         """
                     }
                 }
