@@ -59,14 +59,6 @@ pipeline {
             }
         }
 
-        stage('Generate Reports') {
-            steps {
-                sh 'mkdir -p reports'  // Create reports directory
-                // Assuming you generate a report from tests
-                sh 'dotnet test ${DOTNET_PROJECT_PATH} --logger:html;logFilePath=reports/index.html'
-            }
-        }
-
         stage('Deploy to Remote Server') {
             steps {
                 sshagent([JENKINS_CREDENTIALS_ID]) {
