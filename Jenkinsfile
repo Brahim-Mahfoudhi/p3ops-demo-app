@@ -89,7 +89,7 @@ pipeline {
             echo 'Generate report...'
             sh 'mkdir -p reports'
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, 
-                reportDir: 'reports', reportFiles: 'dotnet-report.html', reportName: 'DotNet Test Report'])
+                reportDir: 'reports', reportFiles: 'dotnet-report.html', reportName: 'DotNetTestReport '])
                 /*System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")*/
         }
     }
