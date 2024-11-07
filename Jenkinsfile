@@ -89,6 +89,7 @@ pipeline {
             echo 'Generate report...'
             sh '''
                 mkdir -p coverage
+                chown -R jenkins:jenkins coverage
                 chmod 755 coverage
             '''
             publishHTML target: [
