@@ -87,7 +87,10 @@ pipeline {
         always {
             echo 'Build process has completed.'
             echo 'Generate report...'
-            sh 'mkdir -p coverage'
+            sh '''
+                mkdir -p coverage
+                chmod 755 coverage
+            '''
             publishHTML target: [
               allowMissing: false,
               alwaysLinkToLastBuild: false,
