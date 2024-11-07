@@ -1,5 +1,9 @@
 pipeline {
     agent { label 'App' }
+    options {
+        // Only keep the 10 most recent builds
+        buildDiscarder(logRotator(numToKeepStr:'10'))
+  }
 
     environment {
         DOTNET_PROJECT_PATH = 'p3ops-demo-app/src/Server/Server.csproj'
