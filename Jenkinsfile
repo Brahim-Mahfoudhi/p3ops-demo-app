@@ -95,7 +95,7 @@ pipeline {
                 mkdir -p reports
                 chown -R jenkins:jenkins reports
                 chmod 755 reports
-            ''''
+            '''
             /*sh "ssh -i ${SSH_KEY_FILE} jenkins@172.16.128.100 'mkdir -p /var/lib/jenkins/jobs/dotnet_pipeline/builds/${env.BUILD_NUMBER}/htmlreports'"*/
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'reports', reportFiles: 'index.html', reportName: 'DotNetTestReport'])
                 /*System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")*/
