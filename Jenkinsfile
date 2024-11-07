@@ -29,7 +29,6 @@ pipeline {
             steps {
                 script {
                     gitInfo = sh(script: 'git show -s HEAD --pretty=format:"%an%n%ae%n%s%n%H%n%h" 2>/dev/null', returnStdout: true).trim().split("\n")
-                    if (gitInfo.size() < 5) error("Insufficient Git information.")
                     env.GIT_AUTHOR_NAME = gitInfo[0]
                     env.GIT_AUTHOR_EMAIL = gitInfo[1]
                     env.GIT_COMMIT_MESSAGE = gitInfo[2]
@@ -90,7 +89,7 @@ pipeline {
             echo 'Generate report...'
             sh 'mkdir -p reports'
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, 
-                reportDir: 'reports', reportFiles: 'dotnet-report.html', reportName: '.Net Test Report'])
+                reportDir: 'reports', reportFiles: 'dotnet-report.html', reportName: 'DotNet Test Report'])
                 /*System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")*/
         }
     }
