@@ -13,11 +13,15 @@ pipeline {
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        
         stage('Checkout Code') {
             steps {
-                script {
-                    git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
-                }
+                git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
             }
         }
 
@@ -83,7 +87,8 @@ pipeline {
         }
         always {
             echo 'Build process has completed.'
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'reports', reportFiles: 'dotnet-report.html', reportName: '.Net Report', reportTitles: '', useWrapperFileDirectly: true])
+            /* publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, keepAll: true, 
+                reportDir: 'reports', reportFiles: 'dotnet-report.html', reportName: '.Net Test Report']) */
         }
     }
 }
