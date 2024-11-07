@@ -88,7 +88,7 @@ pipeline {
             echo 'Build process has completed.'
             echo 'Generate report...'
             sh 'mkdir -p reports'
-            sh "ssh -i ${SSH_KEY_FILE} jenkins@172.16.128.100 'mkdir -p /var/lib/jenkins/jobs/dotnet_pipeline/builds/${env.BUILD_NUMBER}/htmlreports'"
+            /*sh "ssh -i ${SSH_KEY_FILE} jenkins@172.16.128.100 'mkdir -p /var/lib/jenkins/jobs/dotnet_pipeline/builds/${env.BUILD_NUMBER}/htmlreports'"*/
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, 
                 reportDir: 'reports', reportFiles: 'dotnet-report.html', reportName: 'DotNetTestReport '])
                 /*System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")*/
