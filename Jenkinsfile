@@ -98,7 +98,7 @@ pipeline {
         always {
             echo 'Build process has completed.'
             publishHTML(
-                [allowMissing: false, 
+                [allowMissing: true, 
                  alwaysLinkToLastBuild: false, 
                  keepAll: false, 
                  reportDir: 'reports',  // Make sure this matches where your report is generated
