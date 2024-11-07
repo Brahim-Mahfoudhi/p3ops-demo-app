@@ -47,6 +47,7 @@ pipeline {
         stage('Build Application') {
             steps {
                 sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release"
+                sh 'mkdir -p reports'
                 publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, 
                 reportDir: '/var/lib/jenkins/agent/workspace/dotnet_pipeline/reports', reportFiles: 'dotnetreport.html', reportName: 'DotNetTestReport'])
             }
