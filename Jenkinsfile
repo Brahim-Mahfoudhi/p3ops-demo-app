@@ -47,6 +47,8 @@ pipeline {
         stage('Build Application') {
             steps {
                 sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release"
+                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, 
+                reportDir: '/var/lib/jenkins/agent/workspace/dotnet_pipeline/reports', reportFiles: 'dotnetreport.html', reportName: 'DotNetTestReport'])
             }
         }
 
@@ -89,8 +91,8 @@ pipeline {
             echo 'Generate report...'
             sh 'mkdir -p reports'
             /*sh "ssh -i ${SSH_KEY_FILE} jenkins@172.16.128.100 'mkdir -p /var/lib/jenkins/jobs/dotnet_pipeline/builds/${env.BUILD_NUMBER}/htmlreports'"*/
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, 
-                reportDir: '/var/lib/jenkins/agent/workspace/dotnet_pipeline/reports', reportFiles: 'dotnetreport.html', reportName: 'DotNetTestReport'])// Increase timeout in seconds])
+           /* publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, 
+                reportDir: '/var/lib/jenkins/agent/workspace/dotnet_pipeline/reports', reportFiles: 'dotnetreport.html', reportName: 'DotNetTestReport']) */
                 /*System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")*/
         }
     }
