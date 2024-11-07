@@ -90,7 +90,7 @@ pipeline {
             sh 'mkdir -p reports'
             /*sh "ssh -i ${SSH_KEY_FILE} jenkins@172.16.128.100 'mkdir -p /var/lib/jenkins/jobs/dotnet_pipeline/builds/${env.BUILD_NUMBER}/htmlreports'"*/
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, 
-                reportDir: '/var/lib/jenkins/agent/workspace/dotnet_pipeline/reports', reportFiles: 'dotnetreport.html', reportName: 'DotNetTestReport ', timeout: 120  // Increase timeout in seconds])
+                reportDir: '/var/lib/jenkins/agent/workspace/dotnet_pipeline/reports', reportFiles: 'dotnetreport.html', reportName: 'DotNetTestReport ', timeout: 120])// Increase timeout in seconds])
                 /*System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")*/
         }
     }
