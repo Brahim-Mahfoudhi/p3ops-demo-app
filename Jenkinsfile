@@ -89,6 +89,7 @@ pipeline {
             echo 'Build process has completed.'
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, 
                 reportDir: 'reports', reportFiles: 'dotnet-report.html', reportName: '.Net Test Report'])
+                /*System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")*/
         }
     }
 }
