@@ -59,8 +59,7 @@ pipeline {
                 // Install the xUnit logger package
                 sh """
                     dotnet add p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj package xunit
-                    dotnet tool install --global XunitXml.TestLogger
-                    dotnet add package XunitXml.TestLogger
+                    dotnet tool install --global xunit.runner.console
                     dotnet add p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj package xunit.runner.reporters
                 """
             }
