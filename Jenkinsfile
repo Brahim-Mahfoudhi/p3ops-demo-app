@@ -57,7 +57,7 @@ pipeline {
         stage('Running Unit Tests') {
             steps {
                 sh """
-                    dotnet test ${DOTNET_TEST_PATH} --logger "xunitxml;LogFilePath=./test-results/test-report.xml" --collect:XPlat Code Coverage
+                    dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger "xunitxml;LogFilePath=./test-results/test-report.xml" --collect:XPlat Code Coverage
                 """
             }
     }
