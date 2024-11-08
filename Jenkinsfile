@@ -56,8 +56,7 @@ pipeline {
 
         stage('Running Unit Tests') {
             steps {
-                // Run unit tests with dotnet test (fixing the Maven confusion)
-                sh "dotnet test ${DOTNET_TEST_PATH}"
+                sh "dotnet test ${DOTNET_TEST_PATH}" --logger "junit;LogFilePath=./test-results/test-report.xml"
             }
         }
 
@@ -88,7 +87,8 @@ pipeline {
                 sendDiscordNotification("Build Success")
             }
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
-            junit '**/target/surefire-reports/TEST-*.xml'  // Archive the test results
+            junit '**/test-results/test-report.xml'
+
         }
         failure {
             echo 'Build or deployment has failed.'
