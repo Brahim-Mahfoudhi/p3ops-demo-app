@@ -59,7 +59,7 @@ pipeline {
                 // Install the xUnit logger package
                 sh """
                     dotnet add p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj package xunit
-                    dotnet add p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj package xunit.runner.visualstudio --version 2.5.2
+                    dotnet add p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj package xunit.runner.visualstudio --version 2.5.3
 
                 """
             }
@@ -69,7 +69,7 @@ pipeline {
             steps {
                 sh """
                     dotnet new xunit
-                    dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger "xunit"
+                    dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger "trx;LogFileName=test_results.trx"
                 """
             }
         }
