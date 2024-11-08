@@ -118,9 +118,15 @@ pipeline {
             echo 'Build process has completed.'
             echo 'Generate Test report...'
             //sh 'mkdir -p reports'
-            mstest testResultsFile: 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx'
+            // Step 1: Convert .trx to .xml (JUnit format) using a tool like trx2junit
+            sh 'trx2junit p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.xml'
+            
+            // Step 2: Publish JUnit results
             junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.xml'  // Publish the JUnit XML results
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'p3ops-demo-app/tests/Domain.Tests/TestResults', reportFiles: 'test-report.html', reportName: 'Build Report'])  // Make sure the report file is HTML
+            
+            // Step 3: Publish HTML report (if you have an HTML file generated)
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'p3ops-demo-app/tests/Domain.Tests/TestResults', reportFiles: 'test-report.html', reportName: 'Build Report'])
+
 
         }
     }
