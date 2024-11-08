@@ -69,9 +69,9 @@ pipeline {
             steps {
                 sh """
                    mkdir -p coverage
-                   dotnet add package coverlet.collector
-                   dotnet test ${DOTNET_TEST_PATH} --logger "trx;LogFileName=test-report.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=${env.WORKSPACE}/coverage/coverage.cobertura.xml
+                   dotnet test ${DOTNET_TEST_PATH} --logger "trx;LogFileName=test-report.trx" 
                 """
+                /*/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=${env.WORKSPACE}/coverage/coverage.cobertura.xml*/
             }
         }
 
@@ -103,7 +103,7 @@ pipeline {
             }
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
             archiveArtifacts artifacts: 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx', fingerprint: true
-            archiveArtifacts artifacts: 'coverage/coverage.cobertura.xml', fingerprint: true
+            //archiveArtifacts artifacts: 'coverage/coverage.cobertura.xml', fingerprint: true
             junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx'
         }
         failure {
