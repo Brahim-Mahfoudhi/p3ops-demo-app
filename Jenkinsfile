@@ -68,8 +68,7 @@ pipeline {
         stage('Running Unit Tests') {
             steps {
                 sh """
-                    dotnet new xunit
-                    dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger "trx;LogFileName=test_report.trx" /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./coverage/
+                   dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger "trx;LogFileName=test_report.trx" /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./coverage/
                 """
             }
         }
@@ -101,9 +100,9 @@ pipeline {
                 sendDiscordNotification("Build Success")
             }
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
-            archiveArtifacts artifacts: 'test-results/test-report.trx', fingerprint: true
+            archiveArtifacts artifacts: 'TestResults/test-report.trx', fingerprint: true
             archiveArtifacts artifacts: '**/coverage.cobertura.xml', fingerprint: true
-            junit 'test-results/test-report.trx'
+            junit 'TestResults/test-report.trx'
         }
         failure {
             echo 'Build or deployment has failed.'
