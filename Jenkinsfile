@@ -69,6 +69,7 @@ pipeline {
             steps {
                 sh """
                    mkdir -p coverage
+                   dotnet add package coverlet.collector
                    dotnet test ${DOTNET_TEST_PATH} --logger "trx;LogFileName=test-report.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=${env.WORKSPACE}/coverage/coverage.cobertura.xml
                 """
             }
