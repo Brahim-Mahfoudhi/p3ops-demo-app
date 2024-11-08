@@ -69,7 +69,7 @@ pipeline {
             steps {
                 sh """
                    mkdir -p coverage
-                   dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --collect:"XPlat Code Coverage"
+                   dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger trx /p:CollectCoverage=true /p:CoverletOutput=/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage/coverage.cobertura.xml /p:CoverletOutputFormat=cobertura
                 """
                 /*/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=${env.WORKSPACE}/coverage/coverage.cobertura.xml*/
             }
