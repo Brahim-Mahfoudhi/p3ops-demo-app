@@ -119,9 +119,7 @@ pipeline {
             echo 'Generate Test report...'
             //sh 'mkdir -p reports'
             // Step 1: Convert .trx to .xml (JUnit format) using a tool like trx2junit
-            sh 'export PATH="$PATH:/root/.dotnet/tools"'
-            sh 'trx2junit p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml'
-            
+            sh '/root/.dotnet/tools/trx2junit p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml'            
             // Step 2: Publish JUnit results
             junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml'  // Publish the JUnit XML results
             
