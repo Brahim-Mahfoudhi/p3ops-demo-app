@@ -27,7 +27,8 @@ pipeline {
             steps {
                 git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
             }
-            steps {
+            echo 'Gather GitHub info!'
+            script {
                 echo 'Gather GitHub info!'
                 gitInfo = sh(script: 'git show -s HEAD --pretty=format:"%an%n%ae%n%s%n%H%n%h" 2>/dev/null', returnStdout: true).trim().split("\n")
                 env.GIT_AUTHOR_NAME = gitInfo[0]
