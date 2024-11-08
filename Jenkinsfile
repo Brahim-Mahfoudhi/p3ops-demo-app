@@ -104,7 +104,7 @@ pipeline {
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
             archiveArtifacts artifacts: 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx', fingerprint: true
             //archiveArtifacts artifacts: 'coverage/coverage.cobertura.xml', fingerprint: true
-            junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx'
+            // junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx'
         }
         failure {
             echo 'Build or deployment has failed.'
