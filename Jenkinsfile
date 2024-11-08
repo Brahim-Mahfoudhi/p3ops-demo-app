@@ -3,7 +3,7 @@ pipeline {
     options {
         // Only keep the 10 most recent builds
         buildDiscarder(logRotator(numToKeepStr:'10'))
-  }
+    }
 
     environment {
         DOTNET_PROJECT_PATH = 'p3ops-demo-app/src/Server/Server.csproj'
@@ -50,7 +50,7 @@ pipeline {
 
         stage('Build Application') {
             steps {
-                sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release"
+                sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release > build_output.txt 2>&1"
             }
         }
 
@@ -90,16 +90,22 @@ pipeline {
         }
         always {
             echo 'Build process has completed.'
-            echo 'Generate report...'
+            echo 'Generate build report...'
+
+            // Create reports directory
+            sh 'mkdir -p reports'
+
+            // Create a simple HTML report from build output
             sh '''
-                mkdir -p reports
-                dotnet test --logger "html;LogFilePath=reports/index.html"
-                chown -R jenkins:jenkins reports
-                chmod 755 reports
+                echo "<html><head><title>Build Report</title></head><body>" > reports/build_report.html
+                echo "<h1>Build Output</h1>" >> reports/build_report.html
+                echo "<pre>" >> reports/build_report.html
+                cat build_output.txt >> reports/build_report.html
+                echo "</pre>" >> reports/build_report.html
+                echo "</body></html>" >> reports/build_report.html
             '''
-            /*sh "ssh -i ${SSH_KEY_FILE} jenkins@172.16.128.100 'mkdir -p /var/lib/jenkins/jobs/dotnet_pipeline/builds/${env.BUILD_NUMBER}/htmlreports'"*/
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'reports', reportFiles: 'index.html', reportName: 'DotNetTestReport'])
-                /*System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")*/
+            // Publish the HTML report
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'reports', reportFiles: 'build_report.html', reportName: 'Build Report'])
         }
     }
 }
