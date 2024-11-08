@@ -68,6 +68,7 @@ pipeline {
         stage('Running Unit Tests') {
             steps {
                 sh """
+                   mkdir -p TestResults
                    dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger "trx;LogFileName=test_report.trx" /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./coverage/
                 """
             }
