@@ -101,7 +101,7 @@ pipeline {
                 sendDiscordNotification("Build Success")
             }
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
-            archiveArtifacts artifacts: 'TestResults/test-report.trx', fingerprint: true
+            archiveArtifacts artifacts: 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx', fingerprint: true
             archiveArtifacts artifacts: '**/coverage.cobertura.xml', fingerprint: true
             junit 'TestResults/test-report.trx'
         }
