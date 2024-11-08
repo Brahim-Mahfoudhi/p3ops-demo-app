@@ -1,12 +1,12 @@
 pipeline {
     agent { label 'App' }
     options {
-        // Only keep the 10 most recent builds
         buildDiscarder(logRotator(numToKeepStr:'10'))
     }
 
     environment {
         DOTNET_PROJECT_PATH = 'p3ops-demo-app/src/Server/Server.csproj'
+        DOTNET_TEST_PATH = 'p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj'
         PUBLISH_OUTPUT = 'publish'
         DOTNET_ENVIRONMENT = 'Production'
         DOTNET_CONNECTION_STRING = 'Server=localhost,1433;Database=SportStore;User Id=sa;Password=Drgnnrblnc19;Trusted_Connection=False;MultipleActiveResultSets=True;'
@@ -26,31 +26,32 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
-            }
-        }
-
-        stage('Gather Git Information') {
-            steps {
-                script {
-                    gitInfo = sh(script: 'git show -s HEAD --pretty=format:"%an%n%ae%n%s%n%H%n%h" 2>/dev/null', returnStdout: true).trim().split("\n")
-                    env.GIT_AUTHOR_NAME = gitInfo[0]
-                    env.GIT_AUTHOR_EMAIL = gitInfo[1]
-                    env.GIT_COMMIT_MESSAGE = gitInfo[2]
-                    env.GIT_COMMIT = gitInfo[3]
-                    env.GIT_BRANCH = gitInfo[4]
-                }
+                echo 'Gather GitHub info!'
+                gitInfo = sh(script: 'git show -s HEAD --pretty=format:"%an%n%ae%n%s%n%H%n%h" 2>/dev/null', returnStdout: true).trim().split("\n")
+                env.GIT_AUTHOR_NAME = gitInfo[0]
+                env.GIT_AUTHOR_EMAIL = gitInfo[1]
+                env.GIT_COMMIT_MESSAGE = gitInfo[2]
+                env.GIT_COMMIT = gitInfo[3]
+                env.GIT_BRANCH = gitInfo[4]
             }
         }
 
         stage('Restore Dependencies') {
             steps {
                 sh "dotnet restore ${DOTNET_PROJECT_PATH}"
+                sg "dotnet restore ${DOTNET_TEST_PATH}"
             }
         }
 
         stage('Build Application') {
             steps {
-                sh "dotnet build ${DOTNET_PROJECT_PATH} -c Release > build_output.txt 2>&1"
+                sh "dotnet build ${DOTNET_PROJECT_PATH}"
+            }
+        }
+
+        stage('Running unit tests') {
+            steps {
+                sh "dotnet test ${DOTNET_TEST_PATH} -c Release --logger "trx;LogFileName=test-results.trx""
             }
         }
 
@@ -81,6 +82,7 @@ pipeline {
                 sendDiscordNotification("Build Success")
             }
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
+            junit '**/test-results.trx'
         }
         failure {
             echo 'Build or deployment has failed.'
@@ -90,22 +92,10 @@ pipeline {
         }
         always {
             echo 'Build process has completed.'
-            echo 'Generate build report...'
-
-            // Create reports directory
-            sh 'mkdir -p reports'
-
-            // Create a simple HTML report from build output
-            sh '''
-                echo "<html><head><title>Build Report</title></head><body>" > reports/build_report.html
-                echo "<h1>Build Output</h1>" >> reports/build_report.html
-                echo "<pre>" >> reports/build_report.html
-                cat build_output.txt >> reports/build_report.html
-                echo "</pre>" >> reports/build_report.html
-                echo "</body></html>" >> reports/build_report.html
-            '''
-            // Publish the HTML report
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'reports', reportFiles: 'build_report.html', reportName: 'Build Report'])
+            //echo 'Generate Test report...'
+            // sh 'mkdir -p reports'
+            // publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'reports', reportFiles: 'build_report.html', reportName: 'Build Report'])
+            
         }
     }
 }
