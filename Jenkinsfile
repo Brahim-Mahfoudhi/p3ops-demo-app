@@ -69,7 +69,7 @@ pipeline {
             steps {
                 sh """
                    mkdir -p coverage
-                   dotnet test ${DOTNET_TEST_PATH} --logger "trx;LogFileName=test-report.trx" 
+                   dotnet test ${DOTNET_TEST_PATH} --logger "trx;LogFileName=test-report.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=${env.WORKSPACE}/coverage/coverage.cobertura.x
                 """
                 /*/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=${env.WORKSPACE}/coverage/coverage.cobertura.xml*/
             }
