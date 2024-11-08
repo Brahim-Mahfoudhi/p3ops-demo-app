@@ -57,7 +57,7 @@ pipeline {
           stage('Running Unit Tests') {
             steps {
                 sh """
-                    dotnet test ${DOTNET_TEST_PATH} --logger \"junit;LogFilePath=./test-results/test-report.xml\" --collect:\"XPlat Code Coverage\"
+                    dotnet test ${DOTNET_TEST_PATH} --logger \"xunit;LogFilePath=./test-results/test-report.xml\" --collect:\"XPlat Code Coverage\"
                 """
             }
     }
