@@ -39,7 +39,7 @@ pipeline {
         stage('Restore Dependencies') {
             steps {
                 sh "dotnet restore ${DOTNET_PROJECT_PATH}"
-                sg "dotnet restore ${DOTNET_TEST_PATH}"
+                sh "dotnet restore ${DOTNET_TEST_PATH}"
             }
         }
 
@@ -49,9 +49,12 @@ pipeline {
             }
         }
 
-        stage('Running unit tests') {
+        stage('Running Unit Tests') {
             steps {
-                sh "dotnet test ${DOTNET_TEST_PATH} -c Release --logger "trx;LogFileName=test-results.trx""
+                // Run Maven tests with real-time JUnit reporting
+                realtimeJUnit '**/target/surefire-reports/TEST-*.xml' {
+                    sh 'mvn -Dmaven.test.failure.ignore=true clean verify'
+                }
             }
         }
 
@@ -82,7 +85,7 @@ pipeline {
                 sendDiscordNotification("Build Success")
             }
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
-            junit '**/test-results.trx'
+            junit '**/target/surefire-reports/TEST-*.xml'  // Archive the Maven test results
         }
         failure {
             echo 'Build or deployment has failed.'
@@ -92,10 +95,6 @@ pipeline {
         }
         always {
             echo 'Build process has completed.'
-            //echo 'Generate Test report...'
-            // sh 'mkdir -p reports'
-            // publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'reports', reportFiles: 'build_report.html', reportName: 'Build Report'])
-            
         }
     }
 }
