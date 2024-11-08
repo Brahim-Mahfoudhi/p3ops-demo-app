@@ -67,7 +67,7 @@ pipeline {
             steps {
                 sh """
                     dotnet new xunit
-                    dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger:xunit
+                    dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger "xunit"
                 """
             }
         }
