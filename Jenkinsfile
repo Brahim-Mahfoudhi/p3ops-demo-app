@@ -102,7 +102,7 @@ pipeline {
                 sendDiscordNotification("Build Success")
             }
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
-            archiveArtifacts artifacts: 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx', fingerprint: true
+            archiveArtifacts artifacts: 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx', fingerprint: true
             //archiveArtifacts artifacts: 'coverage/coverage.cobertura.xml', fingerprint: true
             // junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx'
    
@@ -119,7 +119,7 @@ pipeline {
             echo 'Generate Test report...'
             //sh 'mkdir -p reports'
             // Step 1: Convert .trx to .xml (JUnit format) using a tool like trx2junit
-            sh 'trx2junit p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.xml'
+            sh 'trx2junit p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml'
             
             // Step 2: Publish JUnit results
             junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml'  // Publish the JUnit XML results
