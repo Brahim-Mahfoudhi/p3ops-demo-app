@@ -1,7 +1,7 @@
 pipeline {
     agent { label 'App' }
     options {
-        buildDiscarder(logRotator(numToKeepStr:'10'))
+        buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
     environment {
@@ -25,18 +25,19 @@ pipeline {
         
         stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
-            }
-            echo 'Gather GitHub info!'
-            script {
-                echo 'Gather GitHub info!'
-                gitInfo = sh(script: 'git show -s HEAD --pretty=format:"%an%n%ae%n%s%n%H%n%h" 2>/dev/null', returnStdout: true).trim().split("\n")
-                env.GIT_AUTHOR_NAME = gitInfo[0]
-                env.GIT_AUTHOR_EMAIL = gitInfo[1]
-                env.GIT_COMMIT_MESSAGE = gitInfo[2]
-                env.GIT_COMMIT = gitInfo[3]
-                env.GIT_BRANCH = gitInfo[4]
-            
+                script {
+                    // Checkout code
+                    git url: 'https://github.com/Brahim-Mahfoudhi/p3ops-demo-app.git'
+                    
+                    // Gather GitHub info
+                    echo 'Gather GitHub info!'
+                    def gitInfo = sh(script: 'git show -s HEAD --pretty=format:"%an%n%ae%n%s%n%H%n%h" 2>/dev/null', returnStdout: true).trim().split("\n")
+                    env.GIT_AUTHOR_NAME = gitInfo[0]
+                    env.GIT_AUTHOR_EMAIL = gitInfo[1]
+                    env.GIT_COMMIT_MESSAGE = gitInfo[2]
+                    env.GIT_COMMIT = gitInfo[3]
+                    env.GIT_BRANCH = gitInfo[4]
+                }
             }
         }
 
@@ -55,10 +56,8 @@ pipeline {
 
         stage('Running Unit Tests') {
             steps {
-                // Run Maven tests with real-time JUnit reporting
-                realtimeJUnit '**/target/surefire-reports/TEST-*.xml' {
-                    sh 'mvn -Dmaven.test.failure.ignore=true clean verify'
-                }
+                // Run unit tests with dotnet test (fixing the Maven confusion)
+                sh "dotnet test ${DOTNET_TEST_PATH}"
             }
         }
 
@@ -89,7 +88,7 @@ pipeline {
                 sendDiscordNotification("Build Success")
             }
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
-            junit '**/target/surefire-reports/TEST-*.xml'  // Archive the Maven test results
+            junit '**/target/surefire-reports/TEST-*.xml'  // Archive the test results
         }
         failure {
             echo 'Build or deployment has failed.'
