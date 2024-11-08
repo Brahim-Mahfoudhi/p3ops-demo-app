@@ -69,7 +69,7 @@ pipeline {
             steps {
                 sh """
                    mkdir -p coverage
-                   dotnet test ${DOTNET_TEST_PATH} --logger "trx;LogFileName=test-report.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=${env.WORKSPACE}/coverage/coverage.cobertura.x
+                   dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger "trx;LogFileName=test-report.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage/coverage.cobertura.xml
                 """
                 /*/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=${env.WORKSPACE}/coverage/coverage.cobertura.xml*/
             }
