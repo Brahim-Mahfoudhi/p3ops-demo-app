@@ -105,6 +105,8 @@ pipeline {
             archiveArtifacts artifacts: 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx', fingerprint: true
             //archiveArtifacts artifacts: 'coverage/coverage.cobertura.xml', fingerprint: true
             // junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx'
+   
+
         }
         failure {
             echo 'Build or deployment has failed.'
@@ -116,7 +118,9 @@ pipeline {
             echo 'Build process has completed.'
             echo 'Generate Test report...'
             //sh 'mkdir -p reports'
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'p3ops-demo-app/tests/Domain.Tests/TestResults', reportFiles: 'test-report.trx', reportName: 'Build Report'])
+            mstest allowEmptyResults: true, testResults: '**/test-report.trx'
+            junit '**/test-report.xml'  // Publish the JUnit XML results
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'p3ops-demo-app/tests/Domain.Tests/TestResults', reportFiles: '**/test-report.xml', reportName: 'Build Report'])
         }
     }
 }
