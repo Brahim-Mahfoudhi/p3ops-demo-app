@@ -57,7 +57,6 @@ pipeline {
         stage('Running Unit Tests') {
             steps {
                 sh """
-                    dotnet add package xunit.runner.visualstudio --version 2.4.3
                     dotnet test ${DOTNET_TEST_PATH} --logger \"xunit;LogFilePath=./test-results/test-report.xml\" --collect:\"XPlat Code Coverage\"
                 """
             }
