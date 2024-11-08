@@ -93,6 +93,7 @@ pipeline {
             echo 'Generate report...'
             sh '''
                 mkdir -p reports
+                dotnet test --logger "html;LogFilePath=reports/index.html"
                 chown -R jenkins:jenkins reports
                 chmod 755 reports
             '''
