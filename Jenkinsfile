@@ -116,7 +116,7 @@ pipeline {
             echo 'Build process has completed.'
             echo 'Generate Test report...'
             //sh 'mkdir -p reports'
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'p3ops-demo-app/tests/Domain.Tests/TestResults', reportFiles: 'test-report. trx', reportName: 'Build Report'])
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'p3ops-demo-app/tests/Domain.Tests/TestResults', reportFiles: 'test-report.trx', reportName: 'Build Report'])
         }
     }
 }
