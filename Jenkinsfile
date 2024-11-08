@@ -54,14 +54,22 @@ pipeline {
             }
         }
 
+        stage('Install xUnit Logger') {
+            steps {
+                // Install the xUnit logger package
+                sh """
+                    dotnet add p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj package xunit.runner.reporters
+                """
+            }
+        }
+
         stage('Running Unit Tests') {
             steps {
                 sh """
                     dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger "xunit;LogFilePath=./test-results/test-report.xml"
                 """
             }
-    }
-
+        }
 
         stage('Publish Application') {
             steps {
