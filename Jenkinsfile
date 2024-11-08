@@ -54,11 +54,14 @@ pipeline {
             }
         }
 
-        stage('Running Unit Tests') {
+          stage('Running Unit Tests') {
             steps {
-                sh "dotnet test ${DOTNET_TEST_PATH} --logger \"junit;LogFilePath=./test-results/test-report.xml\""
+                sh """
+                    dotnet test ${DOTNET_TEST_PATH} --logger \"junit;LogFilePath=./test-results/test-report.xml\" --collect:\"XPlat Code Coverage\"
+                """
             }
-        }
+    }
+
 
         stage('Publish Application') {
             steps {
@@ -87,8 +90,9 @@ pipeline {
                 sendDiscordNotification("Build Success")
             }
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
-            junit '**/test-results/test-report.xml'
-
+            archiveArtifacts artifacts: 'test-results/test-report.xml', fingerprint: true
+            archiveArtifacts artifacts: '**/coverage.cobertura.xml', fingerprint: true
+            junit 'test-results/test-report.xml'
         }
         failure {
             echo 'Build or deployment has failed.'
