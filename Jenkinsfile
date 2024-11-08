@@ -102,7 +102,7 @@ pipeline {
             }
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
             archiveArtifacts artifacts: 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx', fingerprint: true
-            archiveArtifacts artifacts: '/var/lib/jenkins/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage//coverage.cobertura.xml', fingerprint: true
+            archiveArtifacts artifacts: '/var/lib/jenkins/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage/coverage.cobertura.xml', fingerprint: true
             junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-report.trx'
         }
         failure {
