@@ -67,7 +67,7 @@ pipeline {
         stage('Running Unit Tests') {
             steps {
                 sh """
-                    dotnet test --logger:xunit
+                    dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger:xunit
                 """
             }
         }
