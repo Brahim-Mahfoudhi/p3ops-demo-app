@@ -118,7 +118,7 @@ pipeline {
             echo 'Build process has completed.'
             echo 'Generate Test report...'
             //sh 'mkdir -p reports'
-            mstest allowEmptyResults: true, testResults: '**/test-report.trx'
+            mstest testResultsFile: '**/test-report.trx'
             junit '**/test-report.xml'  // Publish the JUnit XML results
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'p3ops-demo-app/tests/Domain.Tests/TestResults', reportFiles: '**/test-report.xml', reportName: 'Build Report'])
         }
