@@ -119,7 +119,7 @@ pipeline {
             echo 'Generate Test report...'
             //sh 'mkdir -p reports'
             // Step 1: Convert .trx to .xml (JUnit format) using a tool like trx2junit
-            sh '/home/jenkins/.dotnet/tools/trx2junit --output p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx'  
+            sh '/home/jenkins/.dotnet/tools/trx2junit --output p3ops-demo-app/tests/Domain.Tests/TestResults p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx'  
             // Step 2: Publish JUnit results
             junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml'  // Publish the JUnit XML results
             // Step 3: Publish HTML report (if you have an HTML file generated)
