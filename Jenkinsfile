@@ -78,11 +78,11 @@ pipeline {
     post {
         success {
             echo 'Build and deployment completed successfully!'
+            archiveArtifacts artifacts: '**/*.dll', fingerprint: true
+            archiveArtifacts artifacts: 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx', fingerprint: true
             script {
                 sendDiscordNotification("Build Success")
             }
-            archiveArtifacts artifacts: '**/*.dll', fingerprint: true
-            archiveArtifacts artifacts: 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx', fingerprint: true
         }
         failure {
             echo 'Build or deployment has failed.'
