@@ -123,7 +123,7 @@ pipeline {
             // Step 2: Publish JUnit results
             junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml'  // Publish the JUnit XML results
             // Step 3: Publish HTML report (if you have an HTML file generated)
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'p3ops-demo-app/tests/Domain.Tests/TestResults', reportFiles: 'test-results.xml', reportName: 'Build Report'])
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'p3ops-demo-app/tests/Domain.Tests/TestResults', reportFiles: 'test-results.html', reportName: 'Build Report'])
 
 
         }
