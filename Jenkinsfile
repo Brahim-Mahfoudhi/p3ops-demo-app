@@ -112,7 +112,9 @@ def sendDiscordNotification(status) {
                 **Branch**: ${env.GIT_BRANCH}
                 **Message**: ${env.GIT_COMMIT_MESSAGE}
                 
-                [**Report**](http://172.16.128.100:8080/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/console) - Detailed build report
+                [**Build output**](http://172.16.128.100:8080/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/console) - Build output
+                [**Test report**](http://172.16.128.100:8080/job/dotnet_pipeline/Test_20Report/) - Test report
+
             """,
             footer: "Build Duration: ${currentBuild.durationString.replace(' and counting', '')}",
             webhookURL: DISCORD_WEBHOOK_URL,
