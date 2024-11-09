@@ -58,7 +58,7 @@ pipeline {
                 """
                 // Generate the report using ReportGenerator
                 sh """
-                    dotnet tool install --global ReportGenerator || true
+                    dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.3.11
                     reportgenerator "-reports:p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx" "-targetdir:p3ops-demo-app/tests/Domain.Tests/TestResults/Report" -reporttypes:Html
                 """
             }
