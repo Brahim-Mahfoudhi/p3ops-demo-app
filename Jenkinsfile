@@ -113,7 +113,8 @@ def sendDiscordNotification(status) {
                 **Message**: ${env.GIT_COMMIT_MESSAGE}
                 
                 [**Build output**](http://172.16.128.100:8080/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/console) - Build output
-                [**Test report**](http://172.16.128.100:8080/job/dotnet_pipeline/Test_20Report/) - Test report
+                [**Test report**](http://172.16.128.100:8080/job/dotnet_pipeline/lastBuild/Test_20Report/) - Test report
+                [**History**](http://172.16.128.100:8080/job/dotnet_pipeline/${env.BUILD_NUMBER}/testReport/history/) - History
 
             """,
             footer: "Build Duration: ${currentBuild.durationString.replace(' and counting', '')}",
