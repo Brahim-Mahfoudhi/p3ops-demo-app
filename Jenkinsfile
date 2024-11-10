@@ -61,13 +61,15 @@ pipeline {
                 echo 'Generating code coverage report...'
                 script {
                     def coverageDir = '/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage-report/'
+                    def coberturaFile = '/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage/coverage.cobertura.xml'  // Het pad van het coverage-bestand
                     // Genereer de HTML-rapporten met behulp van reportgenerator
-                    sh "/home/jenkins/.dotnet/tools/reportgenerator -reports:coverage.cobertura.xml -targetdir:${coverageDir} -reporttypes:Html"
+                    sh "/home/jenkins/.dotnet/tools/reportgenerator -reports:${coberturaFile} -targetdir:${coverageDir} -reporttypes:Html"
                     // Publiceer het HTML-rapport
                     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: coverageDir, reportFiles: 'index.html', reportName: 'Coverage Report'])
                 }
             }
         }
+
 
         stage('Publish Application') {
             steps {
