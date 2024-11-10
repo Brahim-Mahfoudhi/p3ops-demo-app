@@ -37,6 +37,16 @@ pipeline {
                 }
             }
         }
+        /*
+        stage('Linting and Code Analysis') {
+            steps {
+                // Example for linting and static code analysis
+                sh 'dotnet format ${DOTNET_PROJECT_PATH}'
+                sh 'dotnet build-server shutdown'
+                echo 'Code linting and static analysis completed'
+            }
+        }
+        */
 
         stage('Restore Dependencies') {
             steps {
