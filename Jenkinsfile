@@ -56,12 +56,15 @@ pipeline {
                 sh 'dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger "trx;LogFileName=test-results.trx" /p:CollectCoverage=true /p:CoverletOutput=/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage/coverage.cobertura.xml /p:CoverletOutputFormat=cobertura'            }
         }
 
-          stage('Coverage Report') {
+        stage('Coverage Report') {
             steps {
                 echo 'Generating code coverage report...'
                 script {
-                    sh '/home/jenkins/.dotnet/tools/reportgenerator -reports:coverage.cobertura.xml -targetdir:=/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage-report/ -reporttypes:Html'
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir:'/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage-report/', reportFiles: 'index.html', reportName: 'Coverage Report'])
+                    def coverageDir = '/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage-report/'
+                    // Genereer de HTML-rapporten met behulp van reportgenerator
+                    sh "/home/jenkins/.dotnet/tools/reportgenerator -reports:coverage.cobertura.xml -targetdir:${coverageDir} -reporttypes:Html"
+                    // Publiceer het HTML-rapport
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: coverageDir, reportFiles: 'index.html', reportName: 'Coverage Report'])
                 }
             }
         }
