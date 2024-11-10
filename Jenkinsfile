@@ -56,6 +56,16 @@ pipeline {
                 sh 'dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger "trx;LogFileName=test-results.trx" /p:CollectCoverage=true /p:CoverletOutput=/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage/coverage.cobertura.xml /p:CoverletOutputFormat=cobertura'            }
         }
 
+          stage('Coverage Report') {
+            steps {
+                echo 'Generating code coverage report...'
+                script {
+                    sh '/home/jenkins/.dotnet/tools/reportgenerator -reports:coverage.cobertura.xml -targetdir:coverage-report -reporttypes:Html'
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'coverage-report', reportFiles: 'index.html', reportName: 'Coverage Report'])
+                }
+            }
+        }
+
         stage('Publish Application') {
             steps {
                 sh "dotnet publish ${DOTNET_PROJECT_PATH} -c Release -o ${PUBLISH_OUTPUT}"
@@ -95,8 +105,6 @@ pipeline {
             echo 'Generate Test report...'
             sh '/home/jenkins/.dotnet/tools/trx2junit --output p3ops-demo-app/tests/Domain.Tests/TestResults p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx'
             junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml'
-            sh '/home/jenkins/.dotnet/tools/reportgenerator "-reports:p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml;/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage/coverage.cobertura.xml" "-targetdir:p3ops-demo-app/tests/Domain.Tests/TestResults/Report" -reporttypes:Html'
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'p3ops-demo-app/tests/Domain.Tests/TestResults/Report', reportFiles: 'index.html', reportName: 'Test Report'])
         }
     }
 }
