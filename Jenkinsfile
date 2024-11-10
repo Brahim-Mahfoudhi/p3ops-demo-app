@@ -60,8 +60,8 @@ pipeline {
             steps {
                 echo 'Generating code coverage report...'
                 script {
-                    sh '/home/jenkins/.dotnet/tools/reportgenerator -reports:coverage.cobertura.xml -targetdir:coverage-report -reporttypes:Html'
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'coverage-report', reportFiles: 'index.html', reportName: 'Coverage Report'])
+                    sh '/home/jenkins/.dotnet/tools/reportgenerator -reports:coverage.cobertura.xml -targetdir:=/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage-report -reporttypes:Html'
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: '=/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage-report', reportFiles: 'index.html', reportName: 'Coverage Report'])
                 }
             }
         }
