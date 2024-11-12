@@ -96,7 +96,7 @@ pipeline {
         success {
             echo 'Build and deployment completed successfully!'
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
-            archiveArtifacts artifacts: '${TRX_FILE_PATH}', fingerprint: true
+            archiveArtifacts artifacts: "${TRX_FILE_PATH}", fingerprint: true
             script {
                 sendDiscordNotification("Build Success")
             }
