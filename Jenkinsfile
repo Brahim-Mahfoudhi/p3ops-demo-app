@@ -14,6 +14,11 @@ pipeline {
         JENKINS_CREDENTIALS_ID = "jenkins-master-key"
         SSH_KEY_FILE = '/var/lib/jenkins/.ssh/id_rsa'
         REMOTE_HOST = 'jenkins@172.16.128.101'
+        COVERAGE_REPORT_PATH = '/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage/coverage.cobertura.xml'
+        COVERAGE_REPORT_DIR = '/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage-report/'
+        TRX_FILE_PATH = 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx'
+        TRX_TO_XML_PATH = 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml'
+        PUBLISH_DIR_PATH = '/var/lib/jenkins/artifacts/'
     }
 
     stages {
@@ -37,13 +42,6 @@ pipeline {
                 }
             }
         }
-        /*
-        stage('Linting and Code Analysis') {
-            steps {
-                //TODO
-            }
-        }
-        */
 
         stage('Restore Dependencies') {
             steps {
@@ -60,19 +58,19 @@ pipeline {
 
         stage('Running Unit Tests') {
             steps {
-                sh 'dotnet test p3ops-demo-app/tests/Domain.Tests/Domain.Tests.csproj --logger "trx;LogFileName=test-results.trx" /p:CollectCoverage=true /p:CoverletOutput=/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage/coverage.cobertura.xml /p:CoverletOutputFormat=cobertura'            }
+                sh "dotnet test ${DOTNET_TEST_PATH} --logger 'trx;LogFileName=test-results.trx' /p:CollectCoverage=true /p:CoverletOutput=${COVERAGE_REPORT_PATH} /p:CoverletOutputFormat=cobertura"
+            }
         }
 
         stage('Coverage Report') {
             steps {
                 echo 'Generating code coverage report...'
                 script {
-                    sh "/home/jenkins/.dotnet/tools/reportgenerator -reports:/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage/coverage.cobertura.xml -targetdir:/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage-report/ -reporttypes:Html"
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: '/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage-report/', reportFiles: 'index.html', reportName: 'Coverage Report'])
+                    sh "/home/jenkins/.dotnet/tools/reportgenerator -reports:${COVERAGE_REPORT_PATH} -targetdir:${COVERAGE_REPORT_DIR} -reporttypes:Html"
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: COVERAGE_REPORT_DIR, reportFiles: 'index.html', reportName: 'Coverage Report'])
                 }
             }
         }
-
 
         stage('Publish Application') {
             steps {
@@ -85,7 +83,7 @@ pipeline {
                 sshagent([JENKINS_CREDENTIALS_ID]) {
                     script {
                         sh """
-                            scp -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no -r ${PUBLISH_OUTPUT}/* ${REMOTE_HOST}:/var/lib/jenkins/artifacts/
+                            scp -i ${SSH_KEY_FILE} -o StrictHostKeyChecking=no -r ${PUBLISH_OUTPUT}/* ${REMOTE_HOST}:${PUBLISH_DIR_PATH}
                         """
                     }
                 }
@@ -97,7 +95,7 @@ pipeline {
         success {
             echo 'Build and deployment completed successfully!'
             archiveArtifacts artifacts: '**/*.dll', fingerprint: true
-            archiveArtifacts artifacts: 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx', fingerprint: true
+            archiveArtifacts artifacts: '${TRX_FILE_PATH}', fingerprint: true
             script {
                 sendDiscordNotification("Build Success")
             }
@@ -111,8 +109,8 @@ pipeline {
         always {
             echo 'Build process has completed.'
             echo 'Generate Test report...'
-            sh '/home/jenkins/.dotnet/tools/trx2junit --output p3ops-demo-app/tests/Domain.Tests/TestResults p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx'
-            junit 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml'
+            sh "/home/jenkins/.dotnet/tools/trx2junit --output ${TRX_FILE_PATH} ${TRX_FILE_PATH}"
+            junit "${TRX_TO_XML_PATH}"
         }
     }
 }
@@ -132,7 +130,6 @@ def sendDiscordNotification(status) {
                 [**Test result**](http://172.16.128.100:8080/job/dotnet_pipeline/lastBuild/testReport/) - Test result
                 [**Coverage report**](http://172.16.128.100:8080/job/dotnet_pipeline/lastBuild/Coverage_20Report/) - Coverage report
                 [**History**](http://172.16.128.100:8080/job/dotnet_pipeline/${env.BUILD_NUMBER}/testReport/history/) - History
-
             """,
             footer: "Build Duration: ${currentBuild.durationString.replace(' and counting', '')}",
             webhookURL: DISCORD_WEBHOOK_URL,
