@@ -17,6 +17,7 @@ pipeline {
         COVERAGE_REPORT_PATH = '/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage/coverage.cobertura.xml'
         COVERAGE_REPORT_DIR = '/var/lib/jenkins/agent/workspace/dotnet_pipeline/coverage-report/'
         TRX_FILE_PATH = 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.trx'
+        TEST_RESULT_PATH = 'p3ops-demo-app/tests/Domain.Tests/TestResults'
         TRX_TO_XML_PATH = 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml'
         PUBLISH_DIR_PATH = '/var/lib/jenkins/artifacts/'
     }
@@ -109,7 +110,7 @@ pipeline {
         always {
             echo 'Build process has completed.'
             echo 'Generate Test report...'
-            sh "/home/jenkins/.dotnet/tools/trx2junit --output ${TRX_FILE_PATH} ${TRX_FILE_PATH}"
+            sh "/home/jenkins/.dotnet/tools/trx2junit --output ${TEST_RESULT_PATH} ${TRX_FILE_PATH}"
             junit "${TRX_TO_XML_PATH}"
         }
     }
