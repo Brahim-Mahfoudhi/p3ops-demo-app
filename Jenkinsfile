@@ -1,5 +1,6 @@
 pipeline {
     agent { label 'App' }
+    
     options {
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
@@ -19,14 +20,12 @@ pipeline {
         TRX_TO_XML_PATH = 'p3ops-demo-app/tests/Domain.Tests/TestResults/test-results.xml'
         PUBLISH_DIR_PATH = '/var/lib/jenkins/artifacts/'
         JENKINS_SERVER = 'http://139.162.132.174:8080'
-        DOTNET_TEST_PATH = 'Rise.Domain.Tests/Rise.Domain.Tests.csproj'
         REPO_OWNER = "Brahim-Mahfoudhi"
         REPO_NAME = "p3ops-demo-app"
-        GIT_BRANCH = env.CHANGE_BRANCH ?: 
+        GIT_BRANCH = env.CHANGE_BRANCH ?: ''
         DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
-
     }
-       
+    
     parameters {
         string(name: 'sha1', defaultValue: '', description: 'Commit SHA1')
     }
@@ -84,8 +83,6 @@ pipeline {
                 }
             }
         }
-
-
     }
 
     post {
@@ -103,6 +100,7 @@ pipeline {
         }
         always {
             echo 'Build process has completed.'
+        }
     }
 }
 
