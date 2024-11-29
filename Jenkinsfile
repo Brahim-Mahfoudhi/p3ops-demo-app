@@ -11,7 +11,7 @@ pipeline {
         DOTNET_TEST_PATH = 'p3ops-demo-app/tests/Domain.Tests.csproj'
         REPO_OWNER = "Brahim-Mahfoudhi"
         REPO_NAME = "p3ops-demo-app"
-        GIT_BRANCH = "${env.CHANGE_BRANCH ?: 'main'}"
+        GIT_BRANCH = "${env.CHANGE_BRANCH}"
         DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1301160382307766292/kROxjtgZ-XVOibckTMri2fy5-nNOEjzjPLbT9jEpr_R0UH9JG0ZXb2XzUsYGE0d3yk6I"
         TEST = "zass"
     }
