@@ -20,7 +20,15 @@ pipeline {
         string(name: 'sha1', defaultValue: '', description: 'Commit SHA1')
     }
 
+
     stages {
+
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+        
         stage('Check for Pull Request') {
             steps {
                 script {
