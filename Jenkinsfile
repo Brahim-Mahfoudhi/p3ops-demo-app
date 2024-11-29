@@ -5,6 +5,7 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
+    
     environment {
         JENKINS_SERVER = 'http://139.162.132.174:8080'
         DOTNET_PROJECT_PATH = 'p3ops-demo-app/src/Server/Server.csproj'
