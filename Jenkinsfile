@@ -22,6 +22,8 @@ pipeline {
 
     stages {
         stage('Check repo') {
+             steps {
+                script {
                     git credentialsId: 'jenkins-master-key', url: 'git@github.com:Brahim-Mahfoudhi/p3ops-demo-app.git', branch: '${GIT_BRANCH}'
                     echo 'Gather GitHub info!'
                     def gitInfo = sh(script: 'git show -s HEAD --pretty=format:"%an%n%ae%n%s%n%H%n%h" 2>/dev/null', returnStdout: true).trim().split("\n")
@@ -30,6 +32,8 @@ pipeline {
                     env.GIT_COMMIT_MESSAGE = gitInfo[2]
                     env.GIT_COMMIT = gitInfo[3]
                     env.GIT_BRANCH = gitInfo[4]
+                }
+             }
         }
         
         stage('Check for Pull Request') {
