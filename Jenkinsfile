@@ -8,7 +8,7 @@ pipeline {
     environment {
         JENKINS_SERVER = 'http://139.162.132.174:8080'
         DOTNET_PROJECT_PATH = 'Rise.Server/Rise.Server.csproj'
-        DOTNET_TEST_PATH = 'Rise.Domain.Tests/Rise.Domain.Tests.csproj'
+        DOTNET_TEST_PATH = 'p3ops-demo-app/tests/Domain.Tests.csproj'
         REPO_OWNER = "Brahim-Mahfoudhi"
         REPO_NAME = "dev-repo"
         GIT_BRANCH = env.CHANGE_BRANCH ?: 'main'  // Dynamically set GIT_BRANCH to the PR branch or default to 'main'
